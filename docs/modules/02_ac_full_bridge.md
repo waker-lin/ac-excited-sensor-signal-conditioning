@@ -1,91 +1,114 @@
 ﻿# 02 AC Full Bridge
 
-## Role In The Full Chain
+## Design Task
 
-This module converts the physical change of the sensor into a weak AC differential signal. In the current implementation, it is the actual sensing front end of the system.
+The bridge is the sensing front end of the whole system. Its job is not to provide a large voltage, but to convert the small resistance change of the strain-sensitive element into a stable AC differential signal that can still be amplified and synchronously demodulated later.
+
+For this stage, the engineering problem is twofold:
+
+- the bridge output is only at the `mV` level
+- under AC excitation, lead capacitance and distributed parameters make the bridge difficult to balance with resistance trimming alone
+
+So this circuit must solve both **signal conversion** and **zero-residual suppression**.
 
 ## Schematic
 
-Extracted from the report:
-
 ![AC full bridge schematic](../../images/module_figures/ac_full_bridge_schematic.png)
 
-## Working Principle
+## Design Logic
 
-The circuit uses four strain gauges to form an AC full bridge. Under force, the bridge leaves the balance state and generates a small differential output. Because the bridge is AC excited, the useful signal appears as a small carrier-domain response rather than a direct DC level.
+### 1. Why an AC full bridge is used
 
-In practical AC bridge operation, wiring capacitance and distributed parameters prevent ideal zero balance. For this reason, the module contains:
+The sensor side is driven by a sinusoidal excitation source. The bridge therefore does not directly produce a DC level. Instead, it modulates the carrier amplitude according to the resistance change caused by the measured mechanical quantity.
 
-- resistive balancing
-- capacitive compensation
+That choice is important for the whole architecture:
 
-These adjustments reduce zero residual and make the downstream amplification and PSD stages usable.
+- the useful information stays on the carrier and can be amplified as an AC signal
+- later, the phase-sensitive demodulator can separate the in-phase useful component from drift and out-of-phase interference
+- bridge output polarity and phase can still be tracked after amplification
 
-## Design Parameters And Calculation
+### 2. Why compensation is necessary
 
-### Known Parameters
+In an ideal purely resistive bridge, zero output is obtained by resistance balance alone. In the practical circuit described in the report, the strain-gauge leads introduce distributed capacitance, which means the bridge arms are no longer purely resistive. The result is a nonzero residual voltage even when no load is applied.
 
-- bridge arm nominal resistance: `350 ohm`
-- small resistance variation example: `Delta R = 0.44 ohm`
-- zero residual target after balancing: less than `1 mV`
+For that reason the bridge includes two balancing mechanisms:
 
-### Small-Signal Relation
+- resistive balance, used to correct static arm mismatch
+- capacitive balance, used to correct impedance-angle mismatch caused by lead capacitance
 
-The report gives:
+The design goal given in the report is to reduce the residual zero output to less than `1 mV` before the signal enters the high-gain stages.
 
-`Delta R / R = K epsilon`
+## Parameter Calculation
 
-which links the mechanical strain to bridge resistance change.
+### Known Design Data
 
-For system interpretation, the bridge output satisfies the proportional relation:
+- nominal bridge arm resistance: `R = 350 ohm`
+- report result for resistance change under the design condition: `Delta R = 0.44 ohm`
+- bridge relation: `Delta R / R = K epsilon`
+- zero-residual target after balancing: `< 1 mV`
 
-`V_bridge ∝ V_exc * (Delta R / R)`
+### Fractional Resistance Change
 
-This means bridge sensitivity depends on both excitation amplitude and fractional resistance change.
+Using the given values,
+
+`Delta R / R = 0.44 / 350 ≈ 1.26 x 10^-3`
+
+This number is the core electrical quantity produced by the sensor. It tells us that the bridge is working with a fractional resistance variation on the order of `10^-3`, so the bridge output must also be expected to remain small.
+
+### Small-Signal Interpretation
+
+For an AC bridge, the output is proportional to excitation amplitude and fractional arm mismatch:
+
+`v_bridge(t) = A_bridge * cos(omega t)`
+
+with
+
+`A_bridge ∝ V_exc * (Delta R / R)`
+
+The exact proportional coefficient depends on which arms are active and how the resistance changes are distributed, but the engineering conclusion is stable: with `Delta R / R ≈ 1.26 x 10^-3`, the bridge only produces a weak carrier-domain differential voltage. That is why a dedicated high-CMRR differential amplifier is mandatory in the next stage.
+
+If the excitation amplitude is about `5.5 V`, the expected bridge output is only in the `mV` range. This is consistent with the report statement that the sensor-side useful signal is only from a few millivolts to several tens of millivolts.
+
+### How the Simulation Model Implements the Bridge
+
+Because Multisim cannot directly reproduce the mechanical deformation process, the report models the bridge electrically:
+
+- four nominal `349.5 ohm` resistors represent the bridge arms near the `350 ohm` operating point
+- `1 ohm` trimming resistors are used to introduce small imbalance and emulate the effect of loading
+- the `Rp-C` compensation branch is used to tune the phase angle of the arm impedance so that the unloaded bridge can be nulled again under AC excitation
+
+This is a sound engineering simplification: the simulation does not attempt to model mechanics, but it preserves the electrical effect that matters to the signal chain.
 
 ## Design Notes
 
-This stage is extremely sensitive to imperfect balance. If the bridge zero is not corrected well enough, downstream gain stages will amplify the residual error together with the useful signal.
+- The bridge must be balanced before high-gain amplification. Otherwise the residual zero component will be amplified together with the useful signal.
+- AC bridge balance is an impedance-balance problem, not only a resistance-balance problem. That is why the RC compensation branch is structurally necessary.
+- This stage should be judged by residual suppression and signal symmetry, not by absolute amplitude alone.
 
 ## Simulation Result
 
-Extracted simulation waveform:
-
 ![AC full bridge simulation](../../images/simulation_waveforms/ac_full_bridge_output_simulation.png)
 
-Still to be supplemented later:
+The simulated waveform remains a small sinusoidal signal centered near the zero line, which is exactly what this stage should produce. From an engineering point of view, the simulation verifies three things:
 
-- separate balance-state screenshot
-- quantified compensation comparison
-
-Expected simulation conclusion:
-
-- near-zero residual at balance
-- clear AC differential output when imbalance is introduced
+- the bridge still outputs a carrier-frequency differential signal rather than a DC quantity
+- the imbalance introduced in the model is small, so the output stays in the weak-signal regime
+- after compensation and balance adjustment, the residual offset does not dominate the useful AC component
 
 ## Practical Result
 
-Extracted practical waveform:
-
 ![AC full bridge measured](../../images/measured_waveforms/ac_full_bridge_output_measured.png)
 
-Still to be supplemented later:
+The measured oscilloscope result shows that the practical bridge output is also sinusoidal under AC excitation. Compared with simulation, the real waveform carries more amplitude mismatch and practical uncertainty, which is expected because the hardware includes wiring capacitance, probe loading, contact resistance, and environmental pickup.
 
-- measured no-load residual value
-- representative loaded-condition value
-- practical adjustment record for the balancing network
+The important practical conclusion is not that the waveform is perfectly ideal, but that the bridge can still provide a usable AC differential response after balancing. That is the condition required for the next amplifier stage to work correctly.
 
-## Comparison And Conclusion
+## Comparison And Engineering Conclusion
 
-The final comparison should answer:
+Both simulation and experiment support the same design conclusion:
 
-- Can the bridge be adjusted below 1 mV residual?
-- Is the output magnitude consistent with the design estimate?
-- Does the practical wiring condition introduce additional imbalance?
+- the bridge successfully converts the sensor resistance change into an AC differential signal
+- the output remains in the `mV` range, so front-end amplification is necessary by design
+- RC compensation is not optional decoration; it is required to suppress zero residual under real wiring conditions
 
-## To Add Next
-
-- exact bridge component values
-- compensation network values
-- measured residual zero value
-- waveform screenshots at null and loaded conditions
+So for this module, the key design achievement is **not high output amplitude**, but **a controllable, balanceable, and phase-consistent weak AC signal source for the downstream chain**.
