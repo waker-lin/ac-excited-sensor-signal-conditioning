@@ -1,84 +1,75 @@
 ﻿# AC-Excited Sensor Signal Conditioning
 
-Project archive for a complete AC-excited sensor signal-conditioning circuit.
+交流激励式传感器信号调理电路分析与实现。
 
-Chinese title: 交流激励式传感器信号调理电路分析与实现
+这个仓库用于整理本次课程设计中的模拟信号调理主链路，重点不是堆放原始工程文件，而是把设计思路、电路原理、参数计算、仿真结果和实测结果按电路单元组织清楚。
 
-This repository follows a compact three-part structure.
+## 文档结构
 
-## Repository Logic
+本项目按三部分展开：
 
-1. Overall design concept
-2. Unit-circuit design, simulation, and debugging
-3. Bill of materials
+1. 总体设计思路
+2. 单元电路设计、仿真与调试
+3. 材料清单
 
-The intent is straightforward:
+先说明系统为什么这样设计、总电路图如何分块；再逐个展开各单元电路；最后整理器件与材料。
 
-- explain the overall idea first
-- then document each circuit as a complete closed loop
-- finally attach the material list
+## 总体设计思路
 
-## Part 1 Overall Design Concept
+系统采用交流激励和同步检波路线。核心思路是：
 
-This part should answer four questions before any unit circuit is discussed:
+- 用正弦信号激励桥路
+- 将应变引起的电阻变化转换为微弱交流差动信号
+- 用高共模抑制比放大电路完成前级放大
+- 用同步参考控制相敏检波
+- 经过低通滤波和直流放大得到可用输出
 
-- what the measurement target is
-- why AC excitation is used
-- how the signal is processed from input to output
-- how the complete circuit is organized in one schematic
-
-Overall design flow extracted from the report:
+整体流程图：
 
 ![Overall design flow](./images/system_design_flow.png)
 
-Overall circuit simulation figure extracted from the report:
+总体电路图：
 
 ![Overall circuit simulation](./images/overall_circuit_simulation.png)
 
-## Part 2 Unit Circuits
+## 单元电路范围
 
-Each circuit should be written as one self-contained engineering record.
+本仓库当前围绕以下单元展开：
 
-Recommended internal order for each unit:
+1. 正弦驱动电路
+2. 交流全桥及调零电路
+3. 三运放高共模抑制比放大电路
+4. 方波转换电路
+5. 开关式全波相敏检波电路
+6. 移相器
+7. 低通滤波器
+8. 直流放大电路
 
-`circuit design -> parameter calculation -> component selection -> simulation result -> debugging and measured result`
+每个单元按同一结构书写：
 
-Current unit scope:
+`电路设计 -> 参数计算 -> 器件选型 -> 仿真结果 -> 调试与实测结果`
 
-1. Sine-wave drive circuit
-2. AC full bridge and zero adjustment
-3. Three-op-amp high-CMRR amplifier
-4. Square-wave converter
-5. Switch-type full-wave phase-sensitive demodulator
-6. Phase shifter
-7. Low-pass filter
-8. DC amplifier
+## 关键关系
 
-## Part 3 Bill Of Materials
-
-The material list is kept separate from the design text so that the main body stays focused on principle, calculation, simulation, and practical verification.
-
-## Core Working Relation
-
-For synchronous extraction, the key relation is:
+相敏检波部分的核心关系为：
 
 `v_s(t) = A(x)cos(omega t + phi)`
 
 `v_r(t) = cos(omega t)`
 
-After synchronous demodulation and low-pass filtering:
+低通后保留与参考同相的平均分量，因此最终输出满足：
 
 `V_out ∝ A(x)cos(phi)`
 
-## Document Map
+## 目录入口
 
-### Overall Design Part
+总体部分：
 
 - [docs/01_project_overview.md](./docs/01_project_overview.md)
 - [docs/02_system_architecture.md](./docs/02_system_architecture.md)
 - [reports/final_report.md](./reports/final_report.md)
 
-### Unit-Circuit Part
+单元电路部分：
 
 - [docs/modules/01_sine_wave_generator.md](./docs/modules/01_sine_wave_generator.md)
 - [docs/modules/02_ac_full_bridge.md](./docs/modules/02_ac_full_bridge.md)
@@ -87,10 +78,3 @@ After synchronous demodulation and low-pass filtering:
 - [docs/modules/05_phase_sensitive_demodulator.md](./docs/modules/05_phase_sensitive_demodulator.md)
 - [docs/modules/06_low_pass_filter.md](./docs/modules/06_low_pass_filter.md)
 - [docs/modules/07_dc_amplifier.md](./docs/modules/07_dc_amplifier.md)
-
-### Supporting Analysis
-
-- [docs/04_waveform_evolution.md](./docs/04_waveform_evolution.md)
-- [docs/05_mathematical_analysis.md](./docs/05_mathematical_analysis.md)
-- [docs/06_key_parameters.md](./docs/06_key_parameters.md)
-- [docs/08_experiment_and_results.md](./docs/08_experiment_and_results.md)

@@ -1,65 +1,61 @@
 ﻿# 01 Project Overview
 
-## Project Positioning
+## 项目定位
 
-This repository is a circuit-project archive for one complete AC-excited sensor signal-conditioning system.
+本项目围绕一套完整的交流激励式传感器信号调理电路展开，文档组织目标是直接服务于课程设计说明书和后续扩写，而不是保留松散笔记。
 
-The project structure should remain compact and directly support the final report writing.
+## 结构约定
 
-## Confirmed Structure
+全文按三部分组织：
 
-The repository now follows this three-part logic:
+1. 总体设计思路
+2. 单元电路设计、仿真与调试
+3. 材料清单
 
-1. overall design concept
-2. unit-circuit design, simulation, and debugging
-3. bill of materials
+这样安排的原因很直接：
 
-This structure is better suited to the available material because the practical verification is concentrated around each unit circuit rather than requiring a large independent debugging chapter.
+- 先把系统目标、技术路线和总电路图讲清楚
+- 再把每个电路单元写成闭环记录
+- 最后补充器件和材料信息
 
-## Part 1 Overall Design Concept
+## 总体部分需要回答的问题
 
-Before entering the unit circuits, the project must first explain:
+在进入各单元之前，先说明：
 
-- the design target
-- the overall technical route
-- the signal-processing chain
-- the complete circuit schematic
+- 测量目标是什么
+- 为什么采用交流激励
+- 为什么采用同步检波路线
+- 总电路图中各模块如何对应到实际单元
 
-This part provides the system-level context for all later module descriptions.
+## 单元电路部分的写法
 
-## Part 2 Unit-Circuit Design, Simulation, And Debugging
+每个单元统一采用以下顺序：
 
-Each unit circuit should form one complete engineering record.
+`电路设计 -> 参数计算 -> 器件选型 -> 仿真结果 -> 调试与实测结果`
 
-Recommended internal order:
+当前单元包括：
 
-`circuit design -> parameter calculation -> component selection -> simulation result -> debugging and measured result`
+- 正弦驱动电路
+- 交流全桥及调零电路
+- 三运放高共模抑制比放大电路
+- 方波转换电路
+- 开关式全波相敏检波电路
+- 移相器
+- 低通滤波器
+- 直流放大电路
 
-The current unit list is:
+把仿真和调试并入各单元之后，阅读和扩写都会更直接，不会在不同章节重复同一模块。
 
-- sine-wave drive circuit
-- AC full bridge and zero adjustment
-- three-op-amp high-CMRR amplifier
-- square-wave converter
-- switch-type full-wave phase-sensitive demodulator
-- phase shifter
-- low-pass filter
-- DC amplifier
+## 材料清单部分
 
-This arrangement avoids repetition. The reader can finish one circuit and immediately see its principle, computation, simulation, and practical verification in the same place.
+材料清单单独列出，不混入正文分析。内容只保留：
 
-## Part 3 Bill Of Materials
+- 有源器件
+- 无源器件
+- 仪器与辅助材料
 
-The material list should remain independent from the circuit-analysis text.
+## 当前写作原则
 
-It should summarize:
+整个仓库按下面这条规则推进：
 
-- active devices
-- passive devices
-- instruments and auxiliary materials
-
-## Writing Rule
-
-The working rule of the repository is now:
-
-`overall first -> circuit unit closed loop second -> materials last`
+`先整体，后单元；单元内部闭环；最后整理材料`

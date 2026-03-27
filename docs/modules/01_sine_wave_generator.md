@@ -1,219 +1,119 @@
-﻿# 01 Sine-Wave Generator
+﻿# 01 Sine-Wave Drive Circuit
 
-## Role In The Full Chain
+## 2.1.1 电路设计
 
-This module generates the sinusoidal excitation used to drive the AC bridge and to define the phase reference of the whole signal-conditioning system.
+正弦驱动电路是整条模拟链路的起点。它一方面给交流全桥提供激励信号，另一方面为后面的方波转换和相敏检波提供频率基准。因此，这一级不仅是信号源，也是参考源。
 
-Without this stage, the following modules lose their common time base:
+本设计采用 `RC` 桥式正弦波振荡器，而不采用 `LC` 振荡器。原因是目标频率约为 `5 kHz`，在这一频段下，`RC` 方案结构更简单，器件体积更小，更适合课程设计中的实际制作与调试。
 
-- the AC full bridge has no carrier excitation
-- the square-wave converter has no reference input
-- the phase-sensitive detector has no synchronous basis
-
-So this is both an excitation source and a reference source.
-
-## Schematic
-
-The schematic has already been extracted from the Word report:
+电路图如下：
 
 ![Sine-wave generator schematic](../../images/module_figures/sine_wave_generator_schematic.png)
 
-Source figure in the report:
+该电路由四部分组成：
 
-- `图4-1 正弦驱动电路`
+- 运放放大环节
+- `RC` 选频网络
+- 正反馈网络
+- 二极管稳幅网络
 
-## Working Principle
+其中 `R4`、`R5`、`C1`、`C2` 构成桥式选频网络，决定振荡频率；`D3`、`D4` 与增益支路共同限制环路增益，使输出稳定在近似正弦状态，而不发展为明显削顶波形。
 
-The current implementation adopts an RC bridge sine-wave oscillator rather than an LC oscillator. The reason is practical: the target carrier is around 5 kHz, where an RC implementation is simpler and more convenient for this design than a larger LC resonant network.
+## 2.1.2 参数计算
 
-The oscillator contains four basic functions:
+设计目标为：
 
-1. Amplification
-2. Frequency selection
-3. Positive feedback
-4. Amplitude stabilization
+- 输出频率约 `5 kHz`
+- 输出幅值约 `5.5 V`
 
-The RC bridge network determines the oscillation frequency, while the nonlinear stabilization branch limits the loop gain after start-up so that the output settles into a stable sine wave instead of growing into clipping.
-
-From the extracted schematic, the frequency-selective branch is formed mainly by:
-
-- `R4 = 2.05 kOhm`
-- `R5 = 2.05 kOhm`
-- `C1 = 0.015 uF`
-- `C2 = 0.015 uF`
-
-The gain-setting and amplitude-limiting branch contains:
-
-- `R1 = 23.7 kOhm`
-- `R2 = 44 kOhm`
-- `R3 = 5.1 kOhm`
-- `D3`, `D4` as nonlinear amplitude-limiting elements
-- `LM741CH` as the active amplifier
-
-## Design Parameters And Calculation
-
-### Known Design Targets
-
-- excitation frequency: about `5 kHz`
-- excitation amplitude: about `5.5 V`
-
-### Formula (4-1): Oscillation Frequency
-
-The formula extracted from the report corresponds to the RC bridge oscillation frequency:
+桥式振荡器的频率满足：
 
 `f_0 = 1 / (2 pi sqrt(R4 R5 C1 C2))`
 
-Under the equal-value design assumption also stated in the report:
-
-- `C1 = C2`
-- `R4 = R5`
-
-this reduces to:
+当 `R4 = R5 = R`，`C1 = C2 = C` 时，上式化简为：
 
 `f_0 = 1 / (2 pi R C)`
 
-### Substitution For 5 kHz Design
+代入设计频率 `f_0 = 5 kHz`，可得：
 
-For the target frequency:
+`RC = 1 / (2 pi f_0) ≈ 3.18 x 10^-5 s`
 
-`f_0 = 5 kHz`
+取 `C = 0.015 uF`，则有：
 
-we obtain the required time constant:
+`R ≈ 3.18 x 10^-5 / (15 x 10^-9) ≈ 2.12 kOhm`
 
-`RC = 1 / (2 pi f_0) = 1 / (2 pi x 5000) ≈ 3.18 x 10^-5 s`
-
-If:
-
-`C = 0.015 uF = 15 x 10^-9 F`
-
-then the corresponding resistor is approximately:
-
-`R ≈ (3.18 x 10^-5) / (15 x 10^-9) ≈ 2.12 kOhm`
-
-The actual selected standard values shown in the schematic are:
+实际电路中取：
 
 - `R4 = R5 = 2.05 kOhm`
 - `C1 = C2 = 0.015 uF`
 
-This is consistent with the report statement that the initial calculated values were later fine-tuned according to simulation behavior and then standardized.
+该取值与计算结果一致，属于按标准阻值进行的工程化调整。
 
-### Formula (4-2): Amplifier Gain Condition
-
-The extracted gain formula in the report corresponds to the non-inverting amplifier section:
+放大环节满足：
 
 `A = 1 + (R2 + R3) / R1`
 
-Using the schematic values:
+由图中参数：
 
 - `R1 = 23.7 kOhm`
 - `R2 = 44 kOhm`
 - `R3 = 5.1 kOhm`
 
-we get the nominal small-signal gain:
+代入得：
 
 `A ≈ 1 + (44 + 5.1) / 23.7 ≈ 3.07`
 
-This is close to the classical Wien-bridge oscillation requirement that the loop gain around the start-up condition should be slightly above the steady-state threshold.
-
-### Formula (4-3): Feedback Coefficient
-
-The extracted report formula for the RC bridge feedback factor is:
+桥式网络反馈系数为：
 
 `beta = 1 / (1 + R4 / R5 + C2 / C1)`
 
-Under the equal-value assumption:
+当 `R4 = R5` 且 `C1 = C2` 时：
 
-- `R4 = R5`
-- `C1 = C2`
+`beta = 1 / 3`
 
-this becomes:
+因此稳态振荡条件满足：
 
-`beta = 1 / (1 + 1 + 1) = 1 / 3`
+`A beta ≈ 1`
 
-So the steady oscillation condition is consistent with:
+这说明该电路的设计逻辑是正确的：起振时环路增益略大于 1，进入稳态后由二极管稳幅网络将增益压回接近 3，从而保持稳定输出。
 
-`A beta = 1`
+## 2.1.3 器件选型
 
-which implies:
+本级核心器件为：
 
-`A ≈ 3`
+- `LM741CH` 运算放大器
+- 二极管稳幅支路
 
-That matches the gain target of the amplifier branch and explains why the diode-limited gain network is necessary: the oscillator needs sufficient gain to start, but not so much gain that the output clips severely in steady state.
+选用该结构的出发点不是追求高速性能，而是满足本设计中 `5 kHz` 正弦激励的产生要求，并且便于后续仿真和实验板搭建。
 
-## Engineering Meaning Of The Calculation
+## 2.1.4 仿真结果
 
-This module is not only a source block. Its frequency directly affects:
+输出波形仿真图：
 
-- bridge excitation condition
-- square-wave reference frequency
-- PSD operating condition
-- low-pass filter rejection margin
+![Sine-wave generator output simulation](../../images/simulation_waveforms/sine_wave_generator_output_simulation.png)
 
-So any frequency drift here propagates through the full signal chain.
+频率仿真图：
 
-The amplitude-stabilization network is equally important. A sine source with strong clipping or unstable amplitude would directly degrade:
+![Sine-wave generator frequency simulation](../../images/simulation_waveforms/sine_wave_generator_frequency_simulation.png)
 
-- synchronous reference quality
-- demodulation accuracy
-- final DC stability
+从仿真结果可以看出：
 
-## Key Devices
+- 输出波形已经形成稳定正弦波
+- 振荡频率落在设计目标附近
+- 波形失真处于后续桥路激励可接受范围内
 
-The report mentions these device choices in this stage:
+对本系统而言，这一级仿真成立的意义在于：后续桥路激励和同步参考都建立在这一频率基础上，一旦该级频率偏差过大，后面整条链路都会失去统一基准。
 
-- `LM741CH`
-- `SS34`
+## 2.1.5 调试与实测结果
 
-The extracted schematic figure for `图4-1` shows `LM741CH` and a diode limiting branch. The text section of the report also mentions SS34 as the practical diode choice used in the oscillator discussion.
+实测波形如下：
 
-## Simulation Result
+![Sine-wave generator measured](../../images/measured_waveforms/sine_wave_generator_output_measured.jpeg)
 
-The report states that the oscillator simulation result is shown in:
+从实测图可见，电路已经能够输出稳定的正弦信号，说明实际搭建后的起振与稳幅过程基本正常。实测结果与仿真一致地表明：
 
-- `图4-2 正弦波发生器产生波形`
-- `图4-3 正弦波发生器频率`
+- 电路能够正常起振
+- 输出频率处于目标工作范围
+- 输出幅值可满足桥路激励要求
 
-To be attached later in the repository:
-
-- output waveform screenshot
-- measured frequency screenshot
-
-Expected simulation conclusion:
-
-- sinusoidal waveform is stable
-- frequency is near the design target of 5 kHz
-- distortion is acceptable for downstream synchronous detection
-
-## Practical Result
-
-The report later mentions the practical waveform in:
-
-- `图5-3 正弦发生器波形图`
-
-To be attached later in the repository:
-
-- oscilloscope screenshot of the actual sine-wave output
-- measured amplitude and frequency
-- stability observation under practical load
-
-## Comparison And Conclusion
-
-The final comparison for this module should answer:
-
-- Is the actual frequency close to 5 kHz?
-- Is the amplitude sufficient for the bridge stage?
-- Is the waveform clean enough for stable reference conversion?
-- Is the practical circuit close to the simulated oscillator behavior?
-
-## Extracted Formula Assets
-
-The original report stores several formulas in this section as embedded equation objects. They have been extracted and archived here:
-
-- `calculations/extracted_formulas/eq_4_1_raw.png`
-- `calculations/extracted_formulas/eq_4_1_condition_c_raw.png`
-- `calculations/extracted_formulas/eq_4_1_condition_r_raw.png`
-- `calculations/extracted_formulas/eq_4_1_substitution_raw.png`
-- `calculations/extracted_formulas/eq_4_2_gain_raw.png`
-- `calculations/extracted_formulas/eq_4_3_feedback_raw.png`
-
-These extracted images serve as traceable evidence for the Markdown formulas written above.
+因此，该级已经完成了作为系统激励源和参考源的功能，为后续全桥、方波转换和相敏检波提供了统一的时间基准。
