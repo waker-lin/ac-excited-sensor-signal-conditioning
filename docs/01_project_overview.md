@@ -2,65 +2,97 @@
 
 ## Project Positioning
 
-This repository is a circuit-project archive focused on one complete signal-conditioning system.
+This repository is a circuit-project archive for one complete AC-excited sensor signal-conditioning system.
 
-The preferred reading structure is now divided into two parts.
+The repository should be organized in the same order as the final engineering report instead of starting immediately from isolated circuit units.
 
-## Part I: Unit Circuits
+## Recommended Top-Level Logic
 
-The main body of the repository is organized by circuit unit. Each major unit should be understandable on its own.
+The preferred project logic is:
 
-The six core circuit units are:
+`overall design concept -> overall circuit schematic -> unit-circuit design and simulation -> hardware implementation and debugging -> bill of materials`
 
-1. Full bridge
-2. Three-op-amp high-CMRR amplifier
-3. Square-wave converter
-4. Phase-sensitive demodulator
-5. Low-pass filter
-6. DC amplifier
+That means the repository should begin with the system-level explanation, then move into unit circuits, and only after that enter hardware debugging and materials.
 
-For each unit, the repository should provide:
+## Overall-First Principle
 
-- schematic
-- principle explanation
-- parameter calculation and calculation process
-- simulation waveform
-- practical result
-- short conclusion
+Before writing the individual circuit units, the project should first explain two things clearly:
 
-This is the primary organizational rule of the repository.
+1. the overall design concept
+2. the overall circuit schematic
 
-## Part II: Overall System Explanation
+Without these two parts, later module descriptions become fragmented because the reader does not yet know:
 
-After the unit circuits are documented individually, the repository explains how they work together as one full processing chain.
+- why the system uses AC excitation
+- why the signal must pass through bridge, amplification, square-wave conversion, synchronous demodulation, filtering, and DC amplification
+- how the individual circuits are connected in the full schematic
 
-This second part should answer:
+So the repository should always start from the whole system and then move into the units.
 
-- how the signal enters the system
-- what each stage does to the signal
-- how the waveform evolves from stage to stage
-- why the final output can represent the measured quantity
+## Suggested Chapter Mapping
 
-## Why This Structure Matters
+### Chapter 3: Overall Design Concept And System Schematic
 
-If the repository is organized only by the whole chain, then the details of each circuit become hard to track.
+This part should include:
 
-If it is organized only by isolated circuits, then the overall logic becomes fragmented.
+- design objectives
+- technical route selection
+- overall signal flow
+- full circuit schematic and block partitioning
 
-So the repository uses a two-layer structure:
+### Chapter 4: Unit Circuit Design And Simulation
 
-`Part I: unit circuits`
+This part should cover:
 
-`Part II: overall chain explanation`
+- sine-wave drive circuit
+- AC full bridge and zero adjustment
+- three-op-amp high-CMRR amplifier
+- square-wave converter
+- switch-type full-wave phase-sensitive demodulator
+- phase shifter
+- low-pass filter
+- DC amplifier
 
-## Supporting Circuit Blocks
+Each unit should use one consistent internal order:
 
-The sine-wave generator and the display path are still part of the complete system, but they serve as supporting context around the six core unit circuits listed above.
+`circuit design -> parameter calculation -> component selection -> simulation result`
 
-## Documentation Rule
+For bridge and debugging-oriented sections, waveform and zero-adjustment results can be placed directly after the circuit-design subsection if that matches the available material better.
 
-The working rule of the repository remains:
+### Chapter 5: Hardware Implementation And Debugging
 
-`principle -> calculation -> simulation -> practice -> summary`
+This part should include:
 
-That rule applies first to each individual circuit, and then to the overall system explanation.
+- physical construction
+- system integration
+- step-by-step debugging by circuit unit
+
+Each debugging section should answer four questions:
+
+- what was the intended function
+- what practical problem appeared
+- how was it adjusted
+- what result was finally obtained
+
+### Appendix A: Bill Of Materials
+
+The material list should be placed in an appendix instead of being mixed into the main design chapters.
+
+## Why This Structure Is Better
+
+The previous numbering mixed:
+
+- whole-system explanation
+- circuit design
+- simulation verification
+- practical debugging
+- material listing
+
+That makes the report hard to expand and hard to maintain.
+
+The cleaned structure now follows the actual engineering logic:
+
+- first explain the overall idea and total circuit
+- then explain each unit circuit
+- then describe hardware implementation and debugging
+- finally attach the material list
