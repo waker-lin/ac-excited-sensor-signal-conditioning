@@ -71,3 +71,8 @@
 材料清单：
 
 - [reports/03_bill_of_materials.md](./reports/03_bill_of_materials.md)
+
+补充页面：
+
+- [docs/modules/08_display_stage.md](./docs/modules/08_display_stage.md)
+
