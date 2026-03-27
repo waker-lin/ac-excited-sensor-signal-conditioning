@@ -1,35 +1,123 @@
 ﻿# AC-Excited Sensor Signal Conditioning
 
-Analysis and implementation archive for an AC-excited sensor signal-conditioning chain, including differential amplification, phase-sensitive demodulation, low-pass filtering, and DC output conversion.
+Learning-oriented project archive for an AC-excited sensor signal-conditioning system.
 
-## Project Overview
-This repository is organized as a learning-oriented project archive rather than a single schematic dump. It is intended to document the full signal chain from circuit principle to simulation, waveform interpretation, parameter calculation, and practical implementation.
+Chinese title: 交流激励式传感器信号调理电路分析与实现
 
-## Project Goal
-Convert weak AC sensor signals into stable DC voltages proportional to displacement or input variation.
+This repository is intended to grow into a complete engineering study record rather than a schematic-only dump. The target is to document the full path from system concept to module-level reasoning, mathematical derivation, simulation evidence, and experiment notes.
 
-## Signal Chain
-Sinusoidal Excitation -> Sensor / Bridge Output -> Differential Amplifier -> Square-Wave Reference -> Phase-Sensitive Detector -> Low-Pass Filter -> DC Amplifier -> Display / Measurement
+## Project Scope
 
-## Core Principle
-The measured quantity modulates the amplitude and phase of an AC carrier. A synchronous reference is used for phase-sensitive demodulation, and low-pass filtering extracts the useful DC component.
+The current system chain is:
 
-## Key Formula
-`v_s(t) = A(x) cos(omega t + phi)`
+`Sine-Wave Generator -> Full Bridge / Differential Transformer -> Three-Op-Amp High-CMRR Amplifier -> Square-Wave Conversion -> Phase-Sensitive Demodulator -> Low-Pass Filter -> DC Amplifier -> 3.5-Digit Display`
+
+The practical engineering objective is to convert a weak AC sensor output into a stable DC quantity that still preserves both magnitude information and directional information around the balance point.
+
+This repository will therefore focus on:
+
+- why AC excitation is used instead of direct DC measurement
+- how the sensor stage converts physical variation into an amplitude- and phase-related AC signal
+- how differential amplification suppresses common-mode interference while retaining the small useful component
+- how synchronous demodulation extracts the signed low-frequency or DC term from the carrier
+- how filtering, gain allocation, and output scaling affect readability and stability
+
+## Core Working Principle
+
+For an AC-excited sensor, the measured signal can be modeled as:
+
+`v_s(t) = A(x)cos(omega t + phi)`
+
+where `A(x)` is related to the measured quantity and `phi` represents the phase relation between the sensor output and the excitation reference.
+
+The synchronous reference is:
+
+`v_r(t) = cos(omega t)`
+
+After multiplication in the phase-sensitive detector:
 
 `v_m(t) = v_s(t) * v_r(t)`
 
-`V_out ∝ A(x) cos(phi)`
+and after low-pass filtering, the retained component is proportional to:
+
+`V_out ∝ A(x)cos(phi)`
+
+This is the key reason the chain can distinguish in-phase, anti-phase, and quadrature cases.
+
+## Repository Goals
+
+This project is being structured as a sustainable technical archive with four parallel lines of work:
+
+1. System documentation: end-to-end signal chain, module responsibilities, and design constraints.
+2. Mathematical analysis: gain budgeting, phase-sensitive demodulation, filter behavior, and error sources.
+3. Simulation verification: Multisim and related waveform captures for each critical node.
+4. Hardware and experiment records: schematic, notes, test data, troubleshooting, and final conclusions.
+
+## Document Map
+
+- [docs/01_project_overview.md](./docs/01_project_overview.md): project positioning, motivation, and archive usage
+- [docs/02_system_architecture.md](./docs/02_system_architecture.md): end-to-end block logic and path decomposition
+- [docs/03_module_principles.md](./docs/03_module_principles.md): module-by-module engineering notes
+- [docs/04_waveform_evolution.md](./docs/04_waveform_evolution.md): waveform transition along the signal chain
+- [docs/05_mathematical_analysis.md](./docs/05_mathematical_analysis.md): key formulas and phase-sensitive demodulation derivation
+- [docs/06_key_parameters.md](./docs/06_key_parameters.md): frequencies, gains, filter corner, dynamic range, and other tunable values
+- [docs/07_debugging_and_errors.md](./docs/07_debugging_and_errors.md): failure modes, debugging logic, and error sources
+- [docs/08_experiment_and_results.md](./docs/08_experiment_and_results.md): experiment procedures and observed results
+- [docs/09_future_improvements.md](./docs/09_future_improvements.md): future iterations and optimization directions
 
 ## Repository Structure
-- `docs/`: system overview, architecture, module principles, waveform evolution, mathematics, parameters, debugging, results, and future work
-- `images/`: overall circuit, block diagrams, waveform figures, and module screenshots
-- `calculations/`: gain budget, demodulation derivation, low-pass design, and error analysis
-- `simulations/`: Multisim, LTspice, Proteus, and exported waveforms
-- `hardware/`: schematic, BOM, PCB, and implementation notes
-- `data/`: raw and processed data
-- `reports/`: progress notes and final report
-- `refs/`: textbooks, papers, and datasheet references
+
+```text
+.
+|-- docs/
+|-- images/
+|-- calculations/
+|-- simulations/
+|   |-- multisim/
+|   |-- ltspice/
+|   |-- proteus/
+|   `-- exported_waveforms/
+|-- hardware/
+|   |-- schematic/
+|   |-- bom/
+|   `-- pcb/
+|-- data/
+|   |-- raw/
+|   `-- processed/
+|-- reports/
+`-- refs/
+```
+
+## Recommended Content Placement
+
+- `simulations/multisim/`: original Multisim source files for each module and the full system
+- `simulations/exported_waveforms/`: exported waveform screenshots or CSV data
+- `images/`: schematic screenshots, block diagrams, module diagrams, and oscilloscope captures
+- `hardware/schematic/`: full circuit source files, PDFs, or exported images
+- `reports/`: progressive write-ups, stage summaries, and final report drafts
+- `refs/`: textbooks, papers, datasheets, and external references used in analysis
 
 ## Current Status
-This is the repository scaffold. Detailed content will be filled in module by module.
+
+Stage 1 establishes the repository skeleton and the first-pass core documentation:
+
+- system architecture
+- module principles
+- waveform evolution
+- mathematical analysis
+
+The next stage can directly absorb the materials you already have:
+
+- Multisim file paths
+- complete schematic screenshots
+- full instruction PDF
+- module waveform captures
+
+## How To Extend This Repository
+
+When new materials are added, expand the archive in this order:
+
+1. Place source assets in the correct directory.
+2. Add node names, screenshots, and measured values to the relevant document.
+3. Link each waveform or formula back to the exact module and system function it supports.
+4. Record assumptions, component values, and unresolved issues explicitly so the repository remains reusable.
