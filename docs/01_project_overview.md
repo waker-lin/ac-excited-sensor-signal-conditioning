@@ -4,45 +4,38 @@
 
 This repository is a circuit-project archive for one complete AC-excited sensor signal-conditioning system.
 
-The repository should be organized in the same order as the final engineering report instead of starting immediately from isolated circuit units.
+The project structure should remain compact and directly support the final report writing.
 
-## Recommended Top-Level Logic
+## Confirmed Structure
 
-The preferred project logic is:
+The repository now follows this three-part logic:
 
-`overall design concept -> overall circuit schematic -> unit-circuit design and simulation -> hardware implementation and debugging -> bill of materials`
+1. overall design concept
+2. unit-circuit design, simulation, and debugging
+3. bill of materials
 
-That means the repository should begin with the system-level explanation, then move into unit circuits, and only after that enter hardware debugging and materials.
+This structure is better suited to the available material because the practical verification is concentrated around each unit circuit rather than requiring a large independent debugging chapter.
 
-## Overall-First Principle
+## Part 1 Overall Design Concept
 
-Before writing the individual circuit units, the project should first explain two things clearly:
+Before entering the unit circuits, the project must first explain:
 
-1. the overall design concept
-2. the overall circuit schematic
+- the design target
+- the overall technical route
+- the signal-processing chain
+- the complete circuit schematic
 
-Without these two parts, later module descriptions become fragmented because the reader does not yet know:
+This part provides the system-level context for all later module descriptions.
 
-- why the system uses AC excitation
-- why the signal must pass through bridge, amplification, square-wave conversion, synchronous demodulation, filtering, and DC amplification
-- how the individual circuits are connected in the full schematic
+## Part 2 Unit-Circuit Design, Simulation, And Debugging
 
-So the repository should always start from the whole system and then move into the units.
+Each unit circuit should form one complete engineering record.
 
-## Suggested Chapter Mapping
+Recommended internal order:
 
-### Chapter 3: Overall Design Concept And System Schematic
+`circuit design -> parameter calculation -> component selection -> simulation result -> debugging and measured result`
 
-This part should include:
-
-- design objectives
-- technical route selection
-- overall signal flow
-- full circuit schematic and block partitioning
-
-### Chapter 4: Unit Circuit Design And Simulation
-
-This part should cover:
+The current unit list is:
 
 - sine-wave drive circuit
 - AC full bridge and zero adjustment
@@ -53,46 +46,20 @@ This part should cover:
 - low-pass filter
 - DC amplifier
 
-Each unit should use one consistent internal order:
+This arrangement avoids repetition. The reader can finish one circuit and immediately see its principle, computation, simulation, and practical verification in the same place.
 
-`circuit design -> parameter calculation -> component selection -> simulation result`
+## Part 3 Bill Of Materials
 
-For bridge and debugging-oriented sections, waveform and zero-adjustment results can be placed directly after the circuit-design subsection if that matches the available material better.
+The material list should remain independent from the circuit-analysis text.
 
-### Chapter 5: Hardware Implementation And Debugging
+It should summarize:
 
-This part should include:
+- active devices
+- passive devices
+- instruments and auxiliary materials
 
-- physical construction
-- system integration
-- step-by-step debugging by circuit unit
+## Writing Rule
 
-Each debugging section should answer four questions:
+The working rule of the repository is now:
 
-- what was the intended function
-- what practical problem appeared
-- how was it adjusted
-- what result was finally obtained
-
-### Appendix A: Bill Of Materials
-
-The material list should be placed in an appendix instead of being mixed into the main design chapters.
-
-## Why This Structure Is Better
-
-The previous numbering mixed:
-
-- whole-system explanation
-- circuit design
-- simulation verification
-- practical debugging
-- material listing
-
-That makes the report hard to expand and hard to maintain.
-
-The cleaned structure now follows the actual engineering logic:
-
-- first explain the overall idea and total circuit
-- then explain each unit circuit
-- then describe hardware implementation and debugging
-- finally attach the material list
+`overall first -> circuit unit closed loop second -> materials last`

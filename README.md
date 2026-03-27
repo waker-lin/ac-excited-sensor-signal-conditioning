@@ -4,48 +4,46 @@ Project archive for a complete AC-excited sensor signal-conditioning circuit.
 
 Chinese title: 交流激励式传感器信号调理电路分析与实现
 
-This repository is organized as an engineering project archive. The writing order is not module-first, but system-first.
+This repository follows a compact three-part structure.
 
-## Recommended Reading Order
+## Repository Logic
 
-The recommended reading order is:
+1. Overall design concept
+2. Unit-circuit design, simulation, and debugging
+3. Bill of materials
 
-1. overall design concept
-2. overall circuit schematic
-3. unit-circuit design and simulation
-4. hardware implementation and debugging
-5. bill of materials
+The intent is straightforward:
 
-This order is used because the circuit units only make full sense after the reader has seen the total signal path and the complete circuit structure.
+- explain the overall idea first
+- then document each circuit as a complete closed loop
+- finally attach the material list
 
-## Overall Design Concept
+## Part 1 Overall Design Concept
 
-The system uses AC excitation and synchronous demodulation to extract a weak sensor signal while preserving phase information.
+This part should answer four questions before any unit circuit is discussed:
 
-The core idea is:
+- what the measurement target is
+- why AC excitation is used
+- how the signal is processed from input to output
+- how the complete circuit is organized in one schematic
 
-- use a sinusoidal source to excite the sensing bridge
-- convert sensor variation into a weak AC differential signal
-- amplify the useful differential component while suppressing common-mode interference
-- generate a synchronous square-wave reference
-- perform phase-sensitive demodulation
-- use low-pass filtering and DC amplification to obtain a usable output quantity
-
-## Overall Circuit Schematic
-
-Overall design flow extracted from the project report:
+Overall design flow extracted from the report:
 
 ![Overall design flow](./images/system_design_flow.png)
 
-Overall circuit simulation figure extracted from the project report:
+Overall circuit simulation figure extracted from the report:
 
 ![Overall circuit simulation](./images/overall_circuit_simulation.png)
 
-## Unit-Circuit Scope
+## Part 2 Unit Circuits
 
-After the overall concept and the total circuit are clear, the repository enters the unit-circuit part.
+Each circuit should be written as one self-contained engineering record.
 
-Main unit circuits:
+Recommended internal order for each unit:
+
+`circuit design -> parameter calculation -> component selection -> simulation result -> debugging and measured result`
+
+Current unit scope:
 
 1. Sine-wave drive circuit
 2. AC full bridge and zero adjustment
@@ -56,28 +54,28 @@ Main unit circuits:
 7. Low-pass filter
 8. DC amplifier
 
+## Part 3 Bill Of Materials
+
+The material list is kept separate from the design text so that the main body stays focused on principle, calculation, simulation, and practical verification.
+
 ## Core Working Relation
 
-For the synchronous extraction stage, the key relation is:
+For synchronous extraction, the key relation is:
 
 `v_s(t) = A(x)cos(omega t + phi)`
 
 `v_r(t) = cos(omega t)`
 
-After synchronous demodulation and low-pass filtering, the retained component follows the phase law:
+After synchronous demodulation and low-pass filtering:
 
 `V_out ∝ A(x)cos(phi)`
 
-This is the theoretical reason the system can distinguish in-phase, anti-phase, and quadrature conditions.
-
 ## Document Map
 
-### Overall System Part
+### Overall Design Part
 
 - [docs/01_project_overview.md](./docs/01_project_overview.md)
 - [docs/02_system_architecture.md](./docs/02_system_architecture.md)
-- [docs/04_waveform_evolution.md](./docs/04_waveform_evolution.md)
-- [docs/05_mathematical_analysis.md](./docs/05_mathematical_analysis.md)
 - [reports/final_report.md](./reports/final_report.md)
 
 ### Unit-Circuit Part
@@ -90,8 +88,9 @@ This is the theoretical reason the system can distinguish in-phase, anti-phase, 
 - [docs/modules/06_low_pass_filter.md](./docs/modules/06_low_pass_filter.md)
 - [docs/modules/07_dc_amplifier.md](./docs/modules/07_dc_amplifier.md)
 
-## Repository Status
+### Supporting Analysis
 
-The repository already contains extracted schematics, simulation figures, measured waveforms, and draft module pages, but the formal writing order is now defined as:
-
-`overall first -> unit circuits second -> hardware/debugging third`
+- [docs/04_waveform_evolution.md](./docs/04_waveform_evolution.md)
+- [docs/05_mathematical_analysis.md](./docs/05_mathematical_analysis.md)
+- [docs/06_key_parameters.md](./docs/06_key_parameters.md)
+- [docs/08_experiment_and_results.md](./docs/08_experiment_and_results.md)
