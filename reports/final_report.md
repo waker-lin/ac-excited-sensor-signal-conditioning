@@ -1,105 +1,20 @@
-﻿# Final Report Outline
+﻿# 课程设计文档总目录
 
-## Structure Rule
+## 1 总体设计思路
 
-This project report should follow this confirmed logic:
+- [1.1 设计目标、1.2 总体设计思路、1.3 系统信号处理流程、1.4 总体电路图说明](../docs/02_system_architecture.md)
 
-`overall design concept -> unit-circuit design, simulation, and debugging -> bill of materials`
+## 2 单元电路设计、仿真与调试
 
-The intention is to keep the whole report compact and avoid splitting simulation and practical verification into a separate large chapter.
+- [2.1 正弦驱动电路](../docs/modules/01_sine_wave_generator.md)
+- [2.2 交流全桥及调零电路](../docs/modules/02_ac_full_bridge.md)
+- [2.3 三运放高共模抑制比放大电路](../docs/modules/03_three_op_amp_amplifier.md)
+- [2.4 方波转换电路](../docs/modules/04_square_wave_converter.md)
+- [2.5 开关式全波相敏检波电路](../docs/modules/05_phase_sensitive_demodulator.md)
+- [2.6 移相器](../docs/modules/06_phase_shifter.md)
+- [2.7 低通滤波器](../docs/modules/07_low_pass_filter.md)
+- [2.8 直流放大电路](../docs/modules/08_dc_amplifier.md)
 
-## Clean Chapter Outline
+## 3 材料清单
 
-### Chapter 1 Overall Design Concept
-
-#### 1.1 Design Objectives
-- measurement target
-- signal characteristics
-- output target
-
-#### 1.2 Overall Design Concept
-- why AC excitation is used
-- why synchronous demodulation is used
-- signal-chain design logic
-
-#### 1.3 System Signal Flow
-- excitation path
-- sensing path
-- demodulation path
-- output path
-
-#### 1.4 Overall Circuit Schematic
-- complete circuit figure
-- module partitioning in the full schematic
-- correspondence between blocks and actual circuit units
-
-### Chapter 2 Unit-Circuit Design, Simulation, And Debugging
-
-#### 2.1 Sine-Wave Drive Circuit
-- 2.1.1 Circuit Design
-- 2.1.2 Parameter Calculation
-- 2.1.3 Component Selection
-- 2.1.4 Simulation Results
-- 2.1.5 Debugging And Measured Results
-
-#### 2.2 AC Full Bridge And Zero Adjustment
-- 2.2.1 Circuit Design
-- 2.2.2 Zeroing Method
-- 2.2.3 Output Characteristic Analysis
-- 2.2.4 Simulation Results
-- 2.2.5 Debugging And Measured Results
-
-#### 2.3 Three-Op-Amp High-CMRR Amplifier
-- 2.3.1 Circuit Design
-- 2.3.2 Parameter Calculation
-- 2.3.3 Component Selection
-- 2.3.4 Simulation Results
-- 2.3.5 Debugging And Measured Results
-
-#### 2.4 Square-Wave Converter
-- 2.4.1 Circuit Design
-- 2.4.2 Component Selection
-- 2.4.3 Simulation Results
-- 2.4.4 Debugging And Measured Results
-
-#### 2.5 Switch-Type Full-Wave Phase-Sensitive Demodulator
-- 2.5.1 Circuit Design
-- 2.5.2 Component Selection
-- 2.5.3 Simulation Results
-- 2.5.4 Debugging And Measured Results
-
-#### 2.6 Phase Shifter
-- 2.6.1 Circuit Design
-- 2.6.2 Parameter Calculation
-- 2.6.3 Simulation Results
-- 2.6.4 Debugging And Measured Results
-
-#### 2.7 Low-Pass Filter
-- 2.7.1 Circuit Design
-- 2.7.2 Component Selection
-- 2.7.3 Parameter Calculation
-- 2.7.4 Simulation Results
-- 2.7.5 Debugging And Measured Results
-
-#### 2.8 DC Amplifier
-- 2.8.1 Circuit Design
-- 2.8.2 Parameter Calculation
-- 2.8.3 Simulation Results
-- 2.8.4 Debugging And Measured Results
-
-### Chapter 3 Bill Of Materials
-
-#### 3.1 Active Devices
-#### 3.2 Passive Devices
-#### 3.3 Instruments And Auxiliary Materials
-
-## Why This Structure Works Better
-
-This structure avoids two common problems:
-
-- simulation and practical verification are no longer separated from the circuit they belong to
-- the report does not repeat the same module twice in different chapters
-
-Each unit circuit now forms one closed engineering loop:
-
-`principle -> calculation -> simulation -> debugging -> measured result`
+- [3.1 无源器件与传感元件、3.2 有源器件、3.3 调试仪器与辅助材料](./03_bill_of_materials.md)
