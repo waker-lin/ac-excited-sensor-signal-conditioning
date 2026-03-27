@@ -96,3 +96,4 @@ The final comparison should answer:
 - exact capacitor values
 - actual measured frequency and amplitude
 - schematic screenshot
+

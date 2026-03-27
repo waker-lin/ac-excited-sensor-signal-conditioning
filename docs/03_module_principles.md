@@ -61,3 +61,11 @@ The next stage is to attach:
 - waveform screenshots
 - measured values
 - discrepancy explanations
+
+## Extracted Assets
+
+A first batch of figures and formula objects has already been extracted from the project report.
+See:
+
+- [../calculations/report_extraction_index.md](../calculations/report_extraction_index.md)
+
