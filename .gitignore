@@ -13,6 +13,8 @@ __pycache__/
 *.raw
 *.opj
 *.net
+*.ms14
+*.ms14 (Security copy)
 
 # CAD temp
 ~$*

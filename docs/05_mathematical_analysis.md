@@ -136,7 +136,20 @@ Therefore, for system-level analysis, the expression
 
 remains the most useful summary.
 
-## 8. Design Consequences
+## 8. Relation To The Current Implementation
+
+For the present design, the report gives a carrier frequency of 5 kHz and a low-pass cutoff of 100 Hz. This has a straightforward mathematical meaning:
+
+- the useful term after synchronous demodulation is near DC or in the slow-varying measurement band
+- the unwanted product term is centered near `2omega`, which is far above the 100 Hz low-pass corner
+- the low-pass stage is therefore deliberately placed to suppress carrier-related residue while preserving the measurement trend
+
+The reported post-filter level of about -144 mV and the later target near 2 V are consistent with a two-step interpretation:
+
+1. synchronous detection plus low-pass filtering extract the signed average term
+2. the final DC amplifier rescales that average for display
+
+## 9. Design Consequences
 
 The derivation gives several direct engineering consequences:
 
@@ -144,5 +157,6 @@ The derivation gives several direct engineering consequences:
 - if `phi` drifts toward 90 degrees, sensitivity collapses
 - increasing front-end gain helps only if phase integrity is preserved
 - low-pass cutoff must reject the `2omega` term without overly slowing the measurement response
+- if the square-wave reference is poorly aligned, the sign and magnitude of the final displayed value will both be affected
 
 These points should be checked against simulation and experiment as the repository grows.

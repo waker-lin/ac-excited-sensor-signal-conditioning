@@ -22,6 +22,20 @@ This repository will therefore focus on:
 - how synchronous demodulation extracts the signed low-frequency or DC term from the carrier
 - how filtering, gain allocation, and output scaling affect readability and stability
 
+## Current Implementation Snapshot
+
+Based on the available schematic and the circuit-related sections of the project report, the present implementation can already be described more concretely:
+
+- sensing frontend: AC-excited full bridge using four 350 ohm strain gauges with bridge balancing and capacitive compensation
+- excitation source: RC bridge sine-wave oscillator, nominally 5.5 V and 5 kHz
+- front-end amplification: three-op-amp high-CMRR differential amplifier for long-wire and weak-signal conditions
+- reference generation: LM393 zero-crossing square-wave converter
+- synchronous extraction: switch-mode phase-sensitive demodulator
+- post-processing: second-order MFB low-pass filter with 100 Hz cutoff, followed by DC gain stage
+- practical output target: filtered signal around -144 mV further amplified toward about 2 V DC for the display stage
+
+This means the repository is no longer just documenting a generic topology. It is being aligned to one concrete implementation while still keeping the analysis reusable for similar AC-excited sensor systems.
+
 ## Core Working Principle
 
 For an AC-excited sensor, the measured signal can be modeled as:
@@ -50,7 +64,7 @@ This project is being structured as a sustainable technical archive with four pa
 
 1. System documentation: end-to-end signal chain, module responsibilities, and design constraints.
 2. Mathematical analysis: gain budgeting, phase-sensitive demodulation, filter behavior, and error sources.
-3. Simulation verification: Multisim and related waveform captures for each critical node.
+3. Simulation verification: exported waveforms, parameter comparison, and evidence traceability without forcing raw source files into the public repository.
 4. Hardware and experiment records: schematic, notes, test data, troubleshooting, and final conclusions.
 
 ## Document Map
@@ -90,28 +104,30 @@ This project is being structured as a sustainable technical archive with four pa
 
 ## Recommended Content Placement
 
-- `simulations/multisim/`: original Multisim source files for each module and the full system
-- `simulations/exported_waveforms/`: exported waveform screenshots or CSV data
+- `simulations/multisim/`: keep local or private working files if needed, but do not assume they should be versioned publicly
+- `simulations/exported_waveforms/`: exported waveform screenshots or CSV data suitable for publication
 - `images/`: schematic screenshots, block diagrams, module diagrams, and oscilloscope captures
 - `hardware/schematic/`: full circuit source files, PDFs, or exported images
 - `reports/`: progressive write-ups, stage summaries, and final report drafts
 - `refs/`: textbooks, papers, datasheets, and external references used in analysis
 
+## What Is Intentionally Excluded
+
+This repository is currently structured to emphasize reproducible documentation rather than raw design source dumping.
+
+- Multisim source files such as `.ms14` are intentionally ignored by git
+- only exported figures, screenshots, or derived evidence should be uploaded unless there is a specific reason to publish source files
+- the course report is used as a reference source, but only the circuit-related content is driving the repository narrative
+
 ## Current Status
 
-Stage 1 establishes the repository skeleton and the first-pass core documentation:
+Stage 1 establishes the repository skeleton and the first-pass core documentation.
 
-- system architecture
-- module principles
-- waveform evolution
-- mathematical analysis
+Stage 2 begins binding the repository to the actual course-design implementation by incorporating:
 
-The next stage can directly absorb the materials you already have:
-
-- Multisim file paths
-- complete schematic screenshots
-- full instruction PDF
-- module waveform captures
+- the overall circuit screenshot
+- circuit-section information extracted from the report
+- concrete parameter values and device choices for each module
 
 ## How To Extend This Repository
 

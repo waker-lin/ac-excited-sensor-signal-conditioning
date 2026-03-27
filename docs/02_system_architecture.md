@@ -16,6 +16,20 @@ The sensor front end does not directly provide a convenient DC quantity. Instead
 
 `Sine-Wave Generator -> Full Bridge / Differential Transformer -> Three-Op-Amp High-CMRR Amplifier -> Square-Wave Conversion -> Phase-Sensitive Demodulator -> Low-Pass Filter -> DC Amplifier -> 3.5-Digit Display`
 
+## Current Implementation Note
+
+The present course-design implementation corresponds to the full-bridge branch of the generic architecture rather than the differential-transformer branch. In other words, the current hardware path is best understood as:
+
+`RC Bridge Sine Oscillator -> AC Full Bridge with Balance/Compensation -> Three-Op-Amp Instrumentation-Style Amplifier -> LM393 Square-Wave Converter -> Switch-Mode Phase-Sensitive Detector -> 2nd-Order MFB Low-Pass -> DC Amplifier -> Display`
+
+Known implementation parameters already extracted from the report are:
+
+- excitation: 5.5 V sine wave at 5 kHz
+- sensing bridge: four 350 ohm strain gauges
+- bridge balancing target: residual zero less than 1 mV after compensation
+- low-pass cutoff: 100 Hz
+- post-filter signal level example: about -144 mV before final DC amplification
+
 ## Path Decomposition
 
 Although the system is usually drawn as a single left-to-right chain, it is more accurate to understand it as two coupled paths:
@@ -33,7 +47,7 @@ The generator establishes the carrier used to excite the sensor or inductive str
 
 ### 2. Full Bridge / Differential Transformer
 
-This stage converts the measured physical variation into a small AC differential signal. Depending on the implementation, it may be a bridge-type transducer or a differential transformer. In either case, the useful information is not simply instantaneous voltage level; it appears as a change in AC amplitude and often also as a phase relation relative to excitation.
+This stage converts the measured physical variation into a small AC differential signal. Depending on the implementation, it may be a bridge-type transducer or a differential transformer. In the current design, the active branch is an AC full bridge with balancing and capacitive compensation, so the useful information appears mainly as a bridge output related to load-induced resistance change.
 
 ### 3. Three-Op-Amp High-CMRR Amplifier
 
@@ -65,7 +79,7 @@ The architecture can be understood as a sequence of three transformations:
 
 ### A. Physical Variable -> AC Modulation
 
-The excitation source drives the sensor, and the sensor converts the physical quantity into an AC response. This response is weak, differential, and still embedded in the carrier domain.
+The excitation source drives the sensor, and the sensor converts the physical quantity into an AC response. In the current implementation, the bridge output is tied to resistance change under force, while the AC drive avoids the low-frequency drift problems that would be more visible in a purely DC bridge chain.
 
 ### B. AC Modulation -> Signed Low-Frequency Quantity
 
@@ -97,12 +111,13 @@ The system is only robust when the interfaces are treated carefully:
 
 ## Practical Notes For Repository Expansion
 
-As schematic screenshots, Multisim files, and waveforms are added, this document should be extended with:
+As schematic screenshots, waveforms, and later measured data are added, this document should be extended with:
 
 - a labeled block diagram
 - exact node names
 - nominal amplitudes and frequencies at each interface
 - phase reference definition
 - gain distribution across the chain
+- mapping from report section numbers to actual repository evidence
 
 That will turn the current architecture description into a directly traceable engineering record.

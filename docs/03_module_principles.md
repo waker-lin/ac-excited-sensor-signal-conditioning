@@ -37,16 +37,17 @@ The oscillator produces a sinusoid at a chosen carrier frequency. This signal ex
 
 ### Key Components
 
-- oscillator core
+- RC bridge oscillator core
 - amplitude stabilization network
-- frequency-selective components
+- frequency-selective RC components
 - buffer stage if load isolation is required
 
 ### Design Notes
 
-- excitation frequency should stay within the sensor's effective operating range
+- the current implementation selects an RC bridge sine oscillator rather than an LC oscillator
+- the report indicates a nominal excitation of 5.5 V at 5 kHz
+- the report also mentions LM741CH and SS34 in the oscillator implementation, so later hardware notes should preserve that choice unless a redesign is made
 - oscillator distortion should be low enough that higher harmonics do not contaminate the sensing and reference paths
-- output drive capability must be compatible with the bridge or transformer load
 
 ## 2. Full Bridge / Differential Transformer Sensor Stage
 
@@ -57,7 +58,7 @@ Convert the physical variable into a weak differential AC signal.
 ### Input
 
 - sinusoidal excitation
-- physical quantity such as displacement, position, or another modulating variable
+- physical quantity such as force, displacement, position, or another modulating variable
 
 ### Output
 
@@ -69,15 +70,17 @@ Under excitation, the sensor does not usually emit a static DC value. Instead, t
 
 ### Key Components
 
-- bridge arms or differential transformer windings
+- four bridge arms or differential transformer windings
 - balancing network
+- capacitive compensation network
 - sensor connection wiring
 
 ### Design Notes
 
-- balance condition should be defined clearly because it determines the zero point
+- the current implementation uses an AC full bridge built from four 350 ohm strain gauges
+- because wiring and distributed capacitance disturb AC bridge balance, the report adds both resistive balance and capacitive compensation
+- the documented balancing target is residual zero less than 1 mV
 - lead routing and shielding matter because the output amplitude is small
-- sensor source impedance affects amplifier noise and bandwidth
 
 ## 3. Three-Op-Amp High-CMRR Amplifier
 
@@ -103,14 +106,15 @@ The three-op-amp instrumentation-amplifier structure uses two input buffers and 
 - three operational amplifiers
 - precision resistor network
 - gain-setting resistor
+- common-mode compensation branch
 - input protection or filtering components
 
 ### Design Notes
 
-- resistor matching strongly affects CMRR
-- gain must be allocated so that the stage lifts the useful signal without saturating on offsets or spikes
-- input bias current and offset voltage matter for small-signal accuracy
-- bandwidth must remain sufficient for the excitation frequency and any expected modulation envelope
+- the report frames this stage as necessary for long-wire transmission and weak bridge output
+- the intended signal-lift scale is from tens of millivolts toward volt-level processing
+- LM358 is the documented op-amp choice for this stage
+- resistor matching strongly affects CMRR, so later hardware records should include tolerance strategy
 
 ## 4. Square-Wave Conversion
 
@@ -132,14 +136,15 @@ A comparator or zero-crossing stage converts the reference sinusoid into a squar
 
 ### Key Components
 
-- comparator or Schmitt-trigger stage
+- zero-crossing comparator
 - threshold network
 - limiter or buffer stage
 
 ### Design Notes
 
+- the documented implementation uses LM393 as the comparator
+- this stage also performs level adaptation because the raw sine amplitude is higher than the desired reference-logic level
 - switching threshold should be centered to minimize phase error
-- hysteresis must be controlled; too little causes chatter, too much introduces timing shift
 - propagation delay directly affects demodulation accuracy
 
 ## 5. Phase-Sensitive Demodulator
@@ -163,15 +168,17 @@ The detector multiplies or commutates the signal using the reference. If the sig
 
 ### Key Components
 
-- analog switch, multiplier, or synchronous rectifier core
+- transistor-controlled switching core
+- op-amp stage for inversion or following
 - reference driver
 - polarity steering network
 
 ### Design Notes
 
-- phase alignment is the core requirement of the entire chain
-- switching feedthrough and charge injection can appear as ripple or offset
-- reference duty ratio should be controlled because asymmetry creates DC error
+- the current implementation is a switch-mode full-wave phase-sensitive detector rather than a diode-envelope detector
+- the report describes transistor switching controlled by the square-wave reference and mentions LM741CH plus 2N3392 in this section
+- changing the reference phase changes the sign of the averaged output, which is the practical basis for direction discrimination
+- switching feedthrough can appear as ripple or spikes before the low-pass stage
 
 ## 6. Low-Pass Filter
 
@@ -193,14 +200,16 @@ The demodulated waveform contains a desired average component and undesired AC c
 
 ### Key Components
 
-- RC network or active low-pass stage
-- optional higher-order filter if ripple suppression is demanding
+- second-order MFB active low-pass structure
+- RC frequency-setting network
+- precision op-amp
 
 ### Design Notes
 
-- lower cutoff improves ripple suppression but slows response
-- active filters add flexibility but may introduce offset and noise
-- the filter must be considered together with the final display update behavior
+- the documented design uses a second-order MFB low-pass filter
+- the chosen cutoff is 100 Hz against a 5 kHz carrier-related residue
+- OP07D is the documented op-amp choice in the report
+- this stage should be evaluated for the ripple-versus-response-speed tradeoff rather than by cutoff alone
 
 ## 7. DC Amplifier
 
@@ -228,9 +237,10 @@ This stage applies final gain and may also include zeroing, offset trimming, spa
 
 ### Design Notes
 
-- DC offset and drift now directly affect the displayed result
-- excessive gain in this stage can amplify residual ripple left by the low-pass filter
-- output range should be matched to the display full-scale requirement
+- the report gives a representative post-filter level of about -144 mV before this stage
+- the final DC stage is designed to amplify that level toward about 2 V
+- the reported gain requirement is about 13.9, which should later be cross-checked against the actual resistor values in the schematic
+- excessive gain here will expose any residual ripple left by the low-pass stage
 
 ## 8. 3.5-Digit Display
 
@@ -258,6 +268,7 @@ The display stage converts the final analog value into a decimal indication. Whe
 
 ### Design Notes
 
+- the current repository still treats the display block as downstream integration work and has not yet documented its complete circuit details
 - display resolution should be consistent with real system noise and stability
 - reference accuracy of the display stage can limit the overall credibility of the measurement
 - decimal-point placement should align with the intended engineering unit

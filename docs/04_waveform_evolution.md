@@ -16,6 +16,17 @@ Observe the signal in the same order as the actual hardware path:
 6. low-pass filtered output
 7. final DC output to display
 
+## Current Implementation Anchor
+
+For the current course-design version, the known operating anchors are:
+
+- excitation source nominally 5.5 V, 5 kHz
+- bridge implemented as an AC full bridge with balancing and compensation
+- low-pass cutoff chosen as 100 Hz
+- example low-pass output around -144 mV before the DC amplifier
+
+These values are useful because they let waveform interpretation move from purely qualitative description toward node-by-node expectation.
+
 ## Node 1: Excitation Sinusoid
 
 ### Signal Form
@@ -32,6 +43,7 @@ This waveform is the energy source for the sensor stage and the timing source fo
 - frequency stability
 - low distortion
 - sufficient drive amplitude
+- for the current design, whether the oscillator is actually close to 5 kHz and about 5.5 V
 
 ## Node 2: Sensor Differential Output
 
@@ -51,6 +63,7 @@ The sensor has now transferred physical variation into the carrier domain. The u
 - near the null point, the waveform amplitude is very small
 - on one side of the null point, it is in phase with the reference
 - on the other side, it is approximately 180 degrees out of phase
+- in the current bridge implementation, zero residual should be pushed down by balance and capacitive compensation
 
 ## Node 3: Amplified Sensor Waveform
 
@@ -69,6 +82,7 @@ This node should preserve the original measurement information while making it l
 - larger but still clean AC waveform
 - minimal common-mode residue
 - no saturation at expected maximum displacement
+- gain sufficient to lift the bridge output from the millivolt scale toward a level that is easy to synchronously demodulate
 
 ## Node 4: Square-Wave Reference
 
@@ -86,6 +100,7 @@ This is the switching command for the phase-sensitive detector. Its analog ampli
 - transition points aligned with the intended reference phase
 - no excessive jitter or chatter
 - duty cycle close to the intended value
+- clean zero-cross conversion by the LM393 stage
 
 ## Node 5: Demodulated Pulsating Waveform
 
@@ -108,7 +123,7 @@ The waveform at this node is therefore the first stage where sign information be
 
 - a pulsating unipolar or bipolar waveform
 - ripple at twice the carrier for ideal sinusoidal multiplication
-- switching spikes if the practical detector uses analog switches
+- switching spikes if the practical detector uses transistor switching
 
 ## Node 6: Low-Pass Filter Output
 
@@ -126,6 +141,7 @@ The low-pass filter removes the high-frequency demodulation products and keeps t
 - output polarity is consistent with sensor direction
 - ripple is acceptable for the required display stability
 - response speed is acceptable for the intended measurement dynamics
+- in the current implementation, whether the output is close to the documented order of magnitude around -144 mV under the referenced condition
 
 ## Node 7: Final DC Output
 
@@ -144,6 +160,7 @@ At this point, the signal is no longer analyzed as a carrier waveform. It is tre
 - full-scale gain
 - linearity across operating range
 - compatibility with the 3.5-digit display input
+- whether the DC stage reaches the intended output level near 2 V for the chosen reference condition
 
 ## Interpretation Along The Chain
 
