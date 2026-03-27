@@ -35,9 +35,9 @@ The circuit can be read as two cascaded functions.
 
 `U1A` and `U2A` form the differential pre-amplifier. Their feedback arms use:
 
-- `R6 = 25 kOhm`
-- `R8 = 25 kOhm`
-- `R7 = 50 kOhm` potentiometer
+- `R6 = 25 kΩ`
+- `R8 = 25 kΩ`
+- `R7 = 50 kΩ` potentiometer
 
 This is the standard adjustable-gain front end of a three-op-amp instrumentation amplifier. The shared resistor `R7` determines the differential gain of the first stage.
 
@@ -45,10 +45,10 @@ This is the standard adjustable-gain front end of a three-op-amp instrumentation
 
 `U3A` and the surrounding resistor network perform the differential subtraction. The main matched network is:
 
-- `R9 = 40 kOhm`
-- `R10 = 40 kOhm`
-- `R14 = 40 kOhm`
-- `R11 = 40 kOhm`
+- `R9 = 40 kΩ`
+- `R10 = 40 kΩ`
+- `R14 = 40 kΩ`
+- `R11 = 40 kΩ`
 
 With equal ratios on the two sides, the subtraction stage gives nominal unity differential gain while maintaining high common-mode rejection.
 
@@ -72,30 +72,30 @@ For the symmetric three-op-amp input stage,
 
 where:
 
-- `R = R6 = R8 = 25 kOhm`
+- `R = R6 = R8 = 25 kΩ`
 - `R_g` is the effective resistance of the adjustable resistor `R7`
 
 So,
 
-`A_d1 = 1 + 50 kOhm / R_g`
+`A_d1 = 1 + 50 kΩ / R_g`
 
 If this stage is designed for a nominal `10x` first amplification, then
 
-`10 = 1 + 50 kOhm / R_g`
+`10 = 1 + 50 kΩ / R_g`
 
 which gives
 
-`R_g ≈ 5.56 kOhm`
+`R_g ≈ 5.56 kΩ`
 
-This result explains the design choice of using a `50 kOhm` potentiometer: the gain can be trimmed around the required operating point rather than being frozen by a single fixed resistor.
+This result explains the design choice of using a `50 kΩ` potentiometer: the gain can be trimmed around the required operating point rather than being frozen by a single fixed resistor.
 
 ### Output-Stage Differential Gain
 
 The second stage is built with equal resistor ratios:
 
-`R10 / R9 = 40 kOhm / 40 kOhm = 1`
+`R10 / R9 = 40 kΩ / 40 kΩ = 1`
 
-`R11 / R14 = 40 kOhm / 40 kOhm = 1`
+`R11 / R14 = 40 kΩ / 40 kΩ = 1`
 
 So the nominal differential gain of the subtraction stage is approximately:
 
@@ -117,9 +117,9 @@ A three-op-amp topology only achieves high CMRR when the resistor ratios on both
 
 That is why this design adds the trim branch using:
 
-- `R12 = 20 kOhm`
-- `R13 = 20 kOhm`
-- `R15 = 10 kOhm` adjustable resistor
+- `R12 = 20 kΩ`
+- `R13 = 20 kΩ`
+- `R15 = 10 kΩ` adjustable resistor
 
 The engineering purpose of this branch is to inject a small correction term so that the output common-mode gain can be nulled as closely as possible in the real circuit. In other words, `R15` is used to tune **CMRR in practice**, not just gain on paper.
 
@@ -169,3 +169,4 @@ This module meets its engineering role when the following three conditions are s
 Under that criterion, the design is reasonable. The first stage provides the required front-end gain, the second stage preserves subtraction symmetry, and the trim branch gives a practical way to recover high CMRR in real hardware.
 
 So the key contribution of this module is not merely gain. It is the combination of **weak-signal amplification + common-mode rejection + practical trim capability**, which makes the rest of the AC signal-conditioning chain possible.
+

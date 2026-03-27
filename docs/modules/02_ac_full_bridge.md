@@ -1,114 +1,101 @@
-﻿# 02 AC Full Bridge
+﻿# 02 AC Full Bridge And Zero Adjustment Circuit
 
-## Design Task
+## 2.2.1 电路设计
 
-The bridge is the sensing front end of the whole system. Its job is not to provide a large voltage, but to convert the small resistance change of the strain-sensitive element into a stable AC differential signal that can still be amplified and synchronously demodulated later.
+交流全桥及调零电路位于整条测量链路的前端，其作用是把应变片的电阻变化转换成微弱交流差动电压，并尽可能压低桥路零点残余输出，为后级差动放大提供可用输入。
 
-For this stage, the engineering problem is twofold:
+本级采用四臂交流全桥结构。桥路由四片应变片等效构成，在外加交流激励作用下，受力引起的电阻变化被转换为桥路输出电压变化。由于该输出仍然处在载波频率上，所以后面仍可继续保留相位信息并进行同步检波。
 
-- the bridge output is only at the `mV` level
-- under AC excitation, lead capacitance and distributed parameters make the bridge difficult to balance with resistance trimming alone
-
-So this circuit must solve both **signal conversion** and **zero-residual suppression**.
-
-## Schematic
+电路图如下：
 
 ![AC full bridge schematic](../../images/module_figures/ac_full_bridge_schematic.png)
 
-## Design Logic
+### 工作原理
 
-### 1. Why an AC full bridge is used
+桥路平衡时，两输出端电位相等，桥路输出接近零；受力后，各桥臂阻值发生微小变化，桥路离开平衡状态，于是在输出端形成微弱交流差动信号。
 
-The sensor side is driven by a sinusoidal excitation source. The bridge therefore does not directly produce a DC level. Instead, it modulates the carrier amplitude according to the resistance change caused by the measured mechanical quantity.
+对于交流桥路，实际问题并不只是电阻失配。应变片引线和分布参数会等效引入附加电容，使桥臂阻抗出现相角差。因此，桥路调零不仅要做电阻平衡，还要做电容补偿，否则无载时也可能存在明显零点残余电压。
 
-That choice is important for the whole architecture:
+### 主要器件作用
 
-- the useful information stays on the carrier and can be amplified as an AC signal
-- later, the phase-sensitive demodulator can separate the in-phase useful component from drift and out-of-phase interference
-- bridge output polarity and phase can still be tracked after amplification
+- 四个桥臂电阻：构成全桥主体，将电阻变化转换为桥路输出变化
+- 可调电阻支路：用于调节桥路静态平衡点
+- `R_p-C` 补偿支路：用于修正桥臂阻抗相角差，降低交流桥路零点残余
+- `IN1`、`IN2`：桥路激励输入端
+- `OUT3`、`OUT4`：桥路差动输出端
 
-### 2. Why compensation is necessary
+从功能上看，桥体负责“把应变变成电压”，调零支路负责“把无载输出压低”，补偿支路负责“把交流桥路调到真正可用状态”。
 
-In an ideal purely resistive bridge, zero output is obtained by resistance balance alone. In the practical circuit described in the report, the strain-gauge leads introduce distributed capacitance, which means the bridge arms are no longer purely resistive. The result is a nonzero residual voltage even when no load is applied.
+## 2.2.2 调零方法
 
-For that reason the bridge includes two balancing mechanisms:
+本级调零分两步进行：
 
-- resistive balance, used to correct static arm mismatch
-- capacitive balance, used to correct impedance-angle mismatch caused by lead capacitance
+1. 先调节电阻平衡支路，使桥路在无载时尽量接近平衡
+2. 再调节 `R_p-C` 支路，对交流条件下的相角不平衡进行补偿
 
-The design goal given in the report is to reduce the residual zero output to less than `1 mV` before the signal enters the high-gain stages.
+设计目标不是让桥路理论上绝对平衡，而是让后级放大前的零点残余电压足够小。根据原说明书，调零后的目标是使零点残余电压小于 `1 mV`。
 
-## Parameter Calculation
+## 2.2.3 输出特性分析
 
-### Known Design Data
+已知桥臂标称阻值为：
 
-- nominal bridge arm resistance: `R = 350 ohm`
-- report result for resistance change under the design condition: `Delta R = 0.44 ohm`
-- bridge relation: `Delta R / R = K epsilon`
-- zero-residual target after balancing: `< 1 mV`
+`R = 350 Ω`
 
-### Fractional Resistance Change
+原说明书给出的应变关系为：
 
-Using the given values,
+`ΔR / R = Kε`
 
-`Delta R / R = 0.44 / 350 ≈ 1.26 x 10^-3`
+在设计工况下，报告给出的电阻变化量为：
 
-This number is the core electrical quantity produced by the sensor. It tells us that the bridge is working with a fractional resistance variation on the order of `10^-3`, so the bridge output must also be expected to remain small.
+`ΔR = 0.44 Ω`
 
-### Small-Signal Interpretation
+因此电阻相对变化量为：
 
-For an AC bridge, the output is proportional to excitation amplitude and fractional arm mismatch:
+`ΔR / R = 0.44 / 350 ≈ 1.26 × 10^-3`
 
-`v_bridge(t) = A_bridge * cos(omega t)`
+这说明桥路输出只对应 `10^-3` 量级的相对失衡，因此输出电压必然是微弱信号。对交流全桥而言，可将输出理解为：
 
-with
+`v_b(t) ∝ V_exc · (ΔR / R) · cos(ωt)`
 
-`A_bridge ∝ V_exc * (Delta R / R)`
+其中：
 
-The exact proportional coefficient depends on which arms are active and how the resistance changes are distributed, but the engineering conclusion is stable: with `Delta R / R ≈ 1.26 x 10^-3`, the bridge only produces a weak carrier-domain differential voltage. That is why a dedicated high-CMRR differential amplifier is mandatory in the next stage.
+- `V_exc` 为桥路激励电压
+- `ΔR / R` 表示桥路失衡程度
+- `ω` 为激励角频率
 
-If the excitation amplitude is about `5.5 V`, the expected bridge output is only in the `mV` range. This is consistent with the report statement that the sensor-side useful signal is only from a few millivolts to several tens of millivolts.
+由此可以看出，本级的核心不是获得大信号，而是稳定、可调零地获得一个弱交流差动输出。
 
-### How the Simulation Model Implements the Bridge
+### 仿真建模方式
 
-Because Multisim cannot directly reproduce the mechanical deformation process, the report models the bridge electrically:
+由于 Multisim 中无法直接模拟机械受力过程，原说明书采用电阻近似法模拟桥路受力：
 
-- four nominal `349.5 ohm` resistors represent the bridge arms near the `350 ohm` operating point
-- `1 ohm` trimming resistors are used to introduce small imbalance and emulate the effect of loading
-- the `Rp-C` compensation branch is used to tune the phase angle of the arm impedance so that the unloaded bridge can be nulled again under AC excitation
+- 四个桥臂用接近 `350 Ω` 的电阻表示
+- 通过 `1 Ω` 级微调电阻引入失衡
+- 利用补偿支路模拟交流桥路调零过程
 
-This is a sound engineering simplification: the simulation does not attempt to model mechanics, but it preserves the electrical effect that matters to the signal chain.
+这种处理虽然没有机械模型，但保留了桥路输出所需的电学本质。
 
-## Design Notes
-
-- The bridge must be balanced before high-gain amplification. Otherwise the residual zero component will be amplified together with the useful signal.
-- AC bridge balance is an impedance-balance problem, not only a resistance-balance problem. That is why the RC compensation branch is structurally necessary.
-- This stage should be judged by residual suppression and signal symmetry, not by absolute amplitude alone.
-
-## Simulation Result
+## 2.2.4 仿真结果
 
 ![AC full bridge simulation](../../images/simulation_waveforms/ac_full_bridge_output_simulation.png)
 
-The simulated waveform remains a small sinusoidal signal centered near the zero line, which is exactly what this stage should produce. From an engineering point of view, the simulation verifies three things:
+从仿真结果可以看出，桥路输出仍为载波频率下的小幅交流信号，说明桥路已完成“电阻变化 -> 交流差动电压”的转换。
 
-- the bridge still outputs a carrier-frequency differential signal rather than a DC quantity
-- the imbalance introduced in the model is small, so the output stays in the weak-signal regime
-- after compensation and balance adjustment, the residual offset does not dominate the useful AC component
+这一结果验证了两点：
 
-## Practical Result
+- 桥路失衡后能够输出可检测的交流差动信号
+- 调零与补偿后，零点残余没有淹没有效信号
+
+## 2.2.5 调试与实测结果
 
 ![AC full bridge measured](../../images/measured_waveforms/ac_full_bridge_output_measured.png)
 
-The measured oscilloscope result shows that the practical bridge output is also sinusoidal under AC excitation. Compared with simulation, the real waveform carries more amplitude mismatch and practical uncertainty, which is expected because the hardware includes wiring capacitance, probe loading, contact resistance, and environmental pickup.
+实测结果表明，实际桥路输出同样表现为交流波形，但相比仿真会出现更多不对称和幅值偏差。这是实际布线、电容分布、接触电阻和测试探头共同作用的正常结果。
 
-The important practical conclusion is not that the waveform is perfectly ideal, but that the bridge can still provide a usable AC differential response after balancing. That is the condition required for the next amplifier stage to work correctly.
+对本级而言，实测关注点不是波形是否“绝对理想”，而是：
 
-## Comparison And Engineering Conclusion
+- 桥路能否稳定调零
+- 无载时残余输出是否足够小
+- 受力后是否能得到可继续放大的差动交流信号
 
-Both simulation and experiment support the same design conclusion:
-
-- the bridge successfully converts the sensor resistance change into an AC differential signal
-- the output remains in the `mV` range, so front-end amplification is necessary by design
-- RC compensation is not optional decoration; it is required to suppress zero residual under real wiring conditions
-
-So for this module, the key design achievement is **not high output amplitude**, but **a controllable, balanceable, and phase-consistent weak AC signal source for the downstream chain**.
+从当前结果看，本级已经满足后级三运放放大的输入要求。

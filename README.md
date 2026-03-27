@@ -51,13 +51,13 @@
 
 相敏检波部分的核心关系为：
 
-`v_s(t) = A(x)cos(omega t + phi)`
+`v_s(t) = A(x)cos(ωt + φ)`
 
-`v_r(t) = cos(omega t)`
+`v_r(t) = cos(ωt)`
 
 低通后保留与参考同相的平均分量，因此最终输出满足：
 
-`V_out ∝ A(x)cos(phi)`
+`V_out ∝ A(x)cos(φ)`
 
 ## 目录入口
 
