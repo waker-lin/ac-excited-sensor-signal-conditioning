@@ -1,97 +1,87 @@
 ﻿# 06 Low-Pass Filter
 
-## Role In The Full Chain
+## 2.7.1 电路设计
 
-This module removes the carrier-related ripple from the phase-sensitive detector output and retains the useful DC or slowly varying component.
+低通滤波器位于相敏检波之后，其作用是滤除检波输出中的载波残余和高频脉动分量，只保留平均值对应的低频或直流成分。
 
-## Schematic
+如果没有这一级，后面的直流放大电路放大的将不只是有效输出，还会把检波残余纹波一并放大，从而直接影响最终输出稳定性。
 
-Extracted from the report:
+电路图如下：
 
 ![Low-pass filter schematic](../../images/module_figures/low_pass_filter_schematic.png)
 
-## Working Principle
+### 工作原理
 
-After synchronous detection, the waveform contains two parts:
+本级采用二阶无限增益多路反馈低通滤波器。检波输出进入该网络后，高频分量在反馈通路中被强烈衰减，而低频或直流分量被保留下来。
 
-- the useful low-frequency or DC average term
-- higher-frequency residue related to the carrier and switching process
+相对于单级 `RC` 滤波器，这种结构的优点是：
 
-The low-pass filter suppresses the high-frequency component and keeps the average term so that the signal becomes suitable for final DC amplification.
+- 截止特性更明确
+- 高频衰减更强
+- 在有源器件参与下，信号损失更小
 
-## Design Parameters And Calculation
+因此，它更适合放在相敏检波之后，作为交流链路向直流链路过渡的关键一级。
 
-### Known Design Target
+### 主要器件作用
 
-- low-pass cutoff frequency: `100 Hz`
+- `U6 (OP07D)`：有源滤波核心，保证滤波网络正常闭环工作
+- `R27`、`R28`、`R29`、`R30`：决定滤波器增益与极点分布
+- `C5`、`C6`：与电阻共同决定截止频率和频率响应
+- `IN8`：检波输出输入端
+- `OUT9`：滤波后输出端
 
-### Why This Value Is Chosen
+从作用上看，本级做的不是“把信号放大”，而是“把可用平均值从脉动检波波形中提取出来”。
 
-The carrier frequency is `5 kHz`, so the low-pass cutoff is intentionally placed far below the carrier-related residue. This ensures strong attenuation of unwanted high-frequency terms while preserving slow changes in the measured quantity.
+## 2.7.2 器件选型
 
-### Known Topology
+本级核心器件为 `OP07D`。选用该器件的原因是其失调电压和失调电流较小，适合用于低频小信号处理，能够减小滤波后直流量的附加误差。
 
-The report specifies a second-order MFB active low-pass filter.
+## 2.7.3 参数计算
 
-This choice provides:
+本系统载波频率约为：
 
-- stronger attenuation than a single RC stage
-- better control over cutoff behavior
-- less signal loss than a passive-only solution
+`f_carr = 5 kHz`
 
-## Key Devices
+相敏检波后的高频残余仍分布在载波相关频段，因此低通滤波器的截止频率必须远低于 `5 kHz`。原说明书采用的设计值为：
 
-The report documents:
+`f_c = 100 Hz`
 
-- `OP07D`
+这样选取的目的很直接：
 
-## Design Notes
+- 对 `5 kHz` 附近残余项形成强衰减
+- 保留测量结果对应的低频或直流变化趋势
 
-This stage determines the tradeoff between:
+因此，这一级的关键设计矛盾是：
 
-- ripple suppression
-- output response speed
+- `f_c` 过高，则纹波残余明显
+- `f_c` 过低，则系统响应变慢
 
-If the cutoff is too high, ripple remains visible. If it is too low, the output becomes sluggish.
+本设计取 `100 Hz`，是在纹波抑制和响应速度之间做出的折中。
 
-## Simulation Result
-
-Extracted simulation waveform:
+## 2.7.4 仿真结果
 
 ![Low-pass filter simulation](../../images/simulation_waveforms/low_pass_filter_before_after_simulation.png)
 
-Expected simulation conclusion:
+从仿真结果可以直接看出，检波后的脉动波形经过低通后被压成近似稳定直流量，代表性输出约为：
 
-- carrier-related residue is strongly reduced
-- output is smoother and closer to the desired DC level
+`V_LPF ≈ -143.9 mV`
 
-## Practical Result
+这说明：
 
-Extracted practical figures:
+- 高频脉动分量已经被显著抑制
+- 平均值分量已经被成功提取
+- 后级直流放大已经有了明确输入量级
+
+## 2.7.5 调试与实测结果
 
 ![Low-pass measured 1](../../images/measured_waveforms/low_pass_filter_output_measured_1.png)
 
 ![Low-pass measured 2](../../images/measured_waveforms/low_pass_filter_output_measured_2.png)
 
-Still to be supplemented later:
+实测结果表明，滤波后的输出已经明显比相敏检波输出平滑，说明低通作用已经建立。相对仿真，实际输出会保留更多残余纹波，这主要来自器件误差、布线寄生和检波级开关过渡。
 
-- observed residual ripple value
-- settling behavior note
+对本级而言，调试关注点主要是：
 
-Known reference from the report:
-
-- one representative low-pass output level is about `-144 mV`
-
-## Comparison And Conclusion
-
-The final comparison should answer:
-
-- Is the cutoff suitable for the real system?
-- Is ripple suppressed enough for the DC amplifier and display?
-- Is the response speed still acceptable?
-
-## To Add Next
-
-- exact resistor and capacitor values
-- waveform screenshots before and after filtering
-- measured ripple amplitude
+- 纹波是否已经降到后级可接受范围
+- 输出平均值是否与仿真量级一致
+- 滤波响应是否没有慢到影响系统使用

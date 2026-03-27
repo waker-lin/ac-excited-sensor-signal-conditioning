@@ -1,80 +1,71 @@
 ﻿# 07 DC Amplifier
 
-## Role In The Full Chain
+## 2.8.1 电路设计
 
-This module scales the filtered low-level DC signal to the final usable output range.
+直流放大电路位于低通滤波器之后，其作用是把已经提取出的低电平直流量进一步放大到最终可用范围。
 
-## Schematic
+到这一级为止，交流载波信息已经处理完毕，因此本级不再负责检波或滤波，而只负责最后的量程匹配和输出缩放。
 
-Extracted from the report:
+电路图如下：
 
 ![DC amplifier schematic](../../images/module_figures/dc_amplifier_schematic.png)
 
-## Working Principle
+### 工作原理
 
-After low-pass filtering, the useful information has already been extracted, but the voltage level may still be too small for direct display. The DC amplifier therefore performs final gain scaling and may also define output polarity and sensitivity.
+本级采用运放闭环直流放大结构。输入端接收低通滤波输出的低电平直流信号，反馈电阻与输入电阻共同决定闭环增益，从而把毫伏级直流量提升到伏级输出。
 
-## Design Parameters And Calculation
+本级的关键不是频率响应，而是：
 
-### Known Input Level
+- 放大倍数是否正确
+- 输出极性是否符合设计要求
+- 前级残余纹波在本级放大后是否仍可接受
 
-The report gives one representative low-pass output level:
+### 主要器件作用
+
+- `U7`：直流放大核心
+- `R19`：输入电阻，决定输入比例
+- `R25`：反馈可调电阻，用于设定闭环增益
+- `R24`：建立同相端基准
+- `IN9`：低通输出输入端
+- `OUT`：最终模拟输出端
+
+从功能上看，本级负责“把已经提取出的有用直流量放大到目标输出范围”。
+
+## 2.8.2 参数计算
+
+原说明书给出的低通输出代表值约为：
 
 `V_LPF ≈ -144 mV`
 
-### Known Output Target
+最终目标输出约为：
 
-The final target level is approximately:
+`V_out ≈ 2 V`
 
-`V_final ≈ 2 V`
+因此所需直流放大倍数为：
 
-### Required Gain
+`G_DC = |V_out / V_LPF| = |2 / 0.144| ≈ 13.9`
 
-So the reported gain requirement is:
+这就是本级最关键的参数。它说明本级的核心任务非常明确：把前级已经提取出的 `-144 mV` 量级直流量放大到约 `2 V` 输出范围。
 
-`G_DC ≈ 13.9`
-
-which matches:
-
-`|2 / 0.144| ≈ 13.9`
-
-### Engineering Meaning
-
-This module is not responsible for extracting the signal from the carrier. That work is already done. Its job is final scaling, so offset and residual ripple now become highly visible.
-
-## Design Notes
-
-The practical risk of this stage is that any residual ripple left by the low-pass filter will also be amplified. Therefore this module must be evaluated together with the previous stage rather than in isolation.
-
-## Simulation Result
-
-Extracted simulation waveform:
+## 2.8.3 仿真结果
 
 ![DC amplifier simulation](../../images/simulation_waveforms/dc_amplifier_input_output_simulation.png)
 
-Expected simulation conclusion:
+从仿真结果可以看出，输入约 `-204.94 mV` 时，输出已经达到约 `2.657 V`，说明本级直流放大功能已经建立，并且输出被提升到了伏级范围。
 
-- output reaches the target scale
-- polarity is consistent with the intended display meaning
+按该组仿真点计算，等效增益约为：
 
-## Practical Result
+`G ≈ |2.657 / 0.20494| ≈ 12.97`
 
-To be inserted:
+这说明仿真工作点下的实际增益与设计目标 `13.9` 同量级，后续仍可通过反馈电阻调节进一步逼近目标值。
 
-- measured amplifier output voltage
-- gain error if any
-- observed offset and stability
+## 2.8.4 调试与实测结果
 
-## Comparison And Conclusion
+当前仓库中还未补入该级独立实测波形图，因此本级后续调试应重点关注：
 
-The final comparison should answer:
+- 增益是否达到设计值附近
+- 输出零点是否稳定
+- 低通级残余纹波在放大后是否仍可接受
+- 输出是否满足最终显示或后续接口的量程要求
 
-- Does the stage provide the required gain near 13.9?
-- Is the final output close to 2 V under the reference condition?
-- Does residual ripple remain acceptable after amplification?
-
-## To Add Next
-
-- exact resistor ratio
-- measured output value
-- practical waveform screenshot
+从现有仿真结果看，本级已经完成了“毫伏级直流量 -> 伏级输出”的最终缩放任务。

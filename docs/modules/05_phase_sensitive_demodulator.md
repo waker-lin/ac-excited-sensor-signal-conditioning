@@ -1,194 +1,126 @@
 ﻿# 05 Phase-Sensitive Demodulator
 
-## Design Task
+## 2.5.1 电路设计
 
-This module is the core of the AC signal-conditioning chain. Its job is to convert the amplified AC carrier signal into a polarity-sensitive pulsating waveform whose average value is proportional to the in-phase component of the sensor signal.
+开关式全波相敏检波电路是整条模拟链路的核心单元。它的作用是把前级放大的交流载波信号转换为带有极性信息的脉动平均量，使后级低通滤波后得到与输入同相分量对应的直流输出。
 
-In engineering terms, this stage must do two things at once:
+与普通整流不同，本级不仅保留幅值信息，还保留方向信息。因此，它决定了系统最终能否区分同相、反相和正交三种状态。
 
-- preserve amplitude information
-- preserve direction information through phase discrimination
-
-That is why this circuit uses switch-type synchronous demodulation rather than ordinary rectification.
-
-## Schematic
+电路图如下：
 
 ![PSD schematic](../../images/module_figures/phase_sensitive_demodulator_schematic.png)
 
-## Design Logic
+### 工作原理
 
-### 1. Two operating states of the circuit
+本级以方波参考控制三极管 `Q1` 的导通与截止，使运放在两个工作状态之间切换。
 
-Let the amplified sensor signal applied at `IN6` be denoted by $v_i(t)$, and let the square-wave reference applied at `IN7` be denoted by $v_r(t)$.
+当 `Q1` 导通时，运放同相端被拉到近似地电位，电路工作在反相状态。由于：
 
-The circuit has two operating states controlled by transistor `Q1`.
+`R20 = R22 = 1 kΩ`
 
-#### State A: transistor on
+所以反相增益为：
 
-When the reference drives `Q1` into conduction, the non-inverting input of the op amp is pulled to approximately `0 V`. At that moment the circuit becomes an inverting amplifier. Since
+`A_inv = -R22 / R20 = -1`
 
-$$
-R_{20} = R_{22} = 1\,\text{k}\Omega
-$$
+即：
 
-the closed-loop gain is
+`v_o(t) = -v_i(t)`
 
-$$
-A_{\mathrm{inv}} = -\frac{R_{22}}{R_{20}} = -1
-$$
+当 `Q1` 截止时，同相端随输入变化，电路工作在跟随状态，因此：
 
-so the output is
+`v_o(t) = v_i(t)`
 
-$$
-v_o(t) = -v_i(t)
-$$
+也就是说，本级并不改变输入幅值大小，而是按照参考信号的极性控制输出符号。用等效形式可写为：
 
-#### State B: transistor off
+`v_o(t) = v_i(t) · s(t)`
 
-When `Q1` is cut off, the non-inverting input follows the signal through `R21`. Under the virtual-short condition of the op amp, the circuit becomes a unity-gain follower, so
+其中 `s(t)` 为同频方波开关函数，其取值为 `+1` 或 `-1`。
 
-$$
-v_o(t) = v_i(t)
-$$
+### 主要器件作用
 
-Therefore the demodulator does not change the magnitude scale of the signal. It only changes the sign according to the state of the reference switch.
+- `U9 (LM741CH)`：完成反相/跟随两种闭环工作状态
+- `Q1 (2N3392)`：作为电子开关，由参考方波控制导通与截止
+- `R20`、`R22`：决定反相状态下的增益
+- `R21`：建立跟随状态下的输入通路
+- `IN6`：放大后交流信号输入端
+- `IN7`：方波参考输入端
+- `OUT8`：检波输出端
 
-### 2. Equivalent switching description
+从作用上看，本级做的不是普通检波，而是“按参考相位决定输入信号取正还是取负”。
 
-The two operating states above can be written compactly with a normalized switching function $s(t)$:
+## 2.5.2 器件选型
 
-$$
-s(t) \in \{+1,-1\}
-$$
+本级核心器件为：
 
-and
+- `LM741CH`
+- `2N3392`
 
-$$
-v_o(t) = v_i(t)\,s(t)
-$$
+选用这一组合的目的很明确：运放负责保证两种工作状态下都有明确闭环关系，三极管负责在参考信号控制下完成快速切换。
 
-With the polarity convention used in this project, the switching function can be written as
+## 2.5.3 参数计算
 
-$$
-s(t) = \operatorname{sgn}[\cos(\omega t)]
-$$
+设输入交流信号为：
 
-which means the circuit multiplies the input signal by a same-frequency square-wave reference.
+`v_i(t) = A(x)cos(ωt + φ)`
 
-## Parameter Calculation
+方波参考的等效控制函数为：
 
-### Input signal model
+`s(t) = sgn[cos(ωt)]`
 
-Write the amplified sensor signal as
+则检波器输出可写成：
 
-$$
-v_i(t) = A(x)\cos(\omega t + \varphi)
-$$
+`v_o(t) = A(x)cos(ωt + φ) · sgn[cos(ωt)]`
 
-where:
+将方波参考展开，其基波项可写成：
 
-- $A(x)$ is the amplitude determined by the measured quantity $x$
-- $\omega$ is the excitation angular frequency
-- $\varphi$ is the phase difference between the sensor signal and the reference path
+`sgn[cos(ωt)] ≈ (4 / π) cos(ωt)`
 
-Then the switch-type demodulator output is
+于是有：
 
-$$
-v_o(t) = A(x)\cos(\omega t + \varphi)\,\operatorname{sgn}[\cos(\omega t)]
-$$
+`v_o(t) ≈ (4A(x) / π) cos(ωt + φ) cos(ωt)`
 
-### Low-pass output of the switch-type demodulator
+利用恒等式：
 
-The square-wave switching function has the Fourier series
+`cos α cos β = 1 / 2 [cos(α - β) + cos(α + β)]`
 
-$$
-\operatorname{sgn}[\cos(\omega t)] = \frac{4}{\pi}\left(\cos \omega t + \frac{1}{3}\cos 3\omega t + \frac{1}{5}\cos 5\omega t + \cdots \right)
-$$
+可得：
 
-Multiplying $v_i(t)$ by the fundamental term of the switching function gives
+`v_o(t) ≈ (2A(x) / π) cosφ + (2A(x) / π) cos(2ωt + φ)`
 
-$$
-v_o(t) \approx \frac{4A(x)}{\pi}\cos(\omega t + \varphi)\cos(\omega t) + \text{higher-frequency terms}
-$$
+因此，经过低通滤波后保留下来的平均分量为：
 
-Using
+`V_LPF = (2A(x) / π) cosφ`
 
-$$
-\cos \alpha \cos \beta = \frac{1}{2}\left[\cos(\alpha-\beta) + \cos(\alpha+\beta)\right]
-$$
+这就是本级最关键的设计结果。它说明最终输出只与输入信号相对于参考信号的同相分量有关。
 
-we obtain
+据此可直接判断三种典型情况：
 
-$$
-v_o(t) \approx \frac{2A(x)}{\pi}\cos \varphi + \frac{2A(x)}{\pi}\cos(2\omega t + \varphi) + \text{higher-frequency terms}
-$$
+- `φ = 0` 时，`V_LPF > 0`
+- `φ = π` 时，`V_LPF < 0`
+- `φ = π / 2` 时，`V_LPF = 0`
 
-After the low-pass filter removes the AC terms, the retained DC component is
-
-$$
-V_{\mathrm{LPF}} = \frac{2A(x)}{\pi}\cos \varphi
-$$
-
-This expression is the key design result for the actual switch-type circuit. Compared with ideal sinusoidal multiplication, the proportional coefficient is different, but the phase law is unchanged: the output depends on the in-phase component of the input signal.
-
-### Physical meaning of the phase term
-
-The demodulator therefore distinguishes three important cases:
-
-$$
-\varphi = 0 \quad \Rightarrow \quad V_{\mathrm{LPF}} = \frac{2A(x)}{\pi} > 0
-$$
-
-$$
-\varphi = \pi \quad \Rightarrow \quad V_{\mathrm{LPF}} = -\frac{2A(x)}{\pi} < 0
-$$
-
-$$
-\varphi = \frac{\pi}{2} \quad \Rightarrow \quad V_{\mathrm{LPF}} = 0
-$$
-
-This is exactly the reason the system can distinguish positive displacement, negative displacement, and quadrature interference.
-
-## Key Device Choice
-
-The report uses:
-
-- `LM741CH` as the op amp
-- `2N3392` as the transistor switch
-
-The design idea is clear: the op amp provides the linear closed-loop inversion/following behavior, while the transistor performs the state switching under control of the reference square wave.
-
-## Design Notes
-
-- The reference frequency must match the carrier frequency; otherwise the average output collapses.
-- The reference phase must be controlled; otherwise the demodulated amplitude is reduced by the factor $\cos \varphi$.
-- Because $R_{20} = R_{22}$, the switched stage preserves input amplitude while changing only the sign. This is a deliberate design choice.
-- The output of this stage is not yet the final DC result. It is a pulsating waveform that must still be filtered.
-
-## Simulation Result
+## 2.5.4 仿真结果
 
 ![PSD reference and modulated input](../../images/simulation_waveforms/psd_reference_and_modulated_signal_simulation.png)
 
 ![PSD output simulation](../../images/simulation_waveforms/psd_output_simulation.png)
 
-The first simulation figure shows that the amplified carrier signal and the square-wave reference have the same frequency and a defined phase relationship. The second figure shows the expected demodulator output: a full-wave pulsating waveform whose average value is positive for the selected phase convention.
+仿真结果表明，输入交流信号和参考方波在同频条件下能够完成同步检波，输出变成具有明显平均分量的脉动波形。这说明：
 
-This is exactly the waveform that should appear before low-pass filtering. It is not a failure to remove ripple; it is the intended output of synchronous switching demodulation.
+- 方波参考能够正确控制开关状态
+- 输入信号在检波后已经完成符号折转
+- 后级低通滤波具备提取平均分量的前提
 
-## Practical Result
+## 2.5.5 调试与实测结果
 
 ![PSD measured](../../images/measured_waveforms/phase_sensitive_demodulator_output_measured.png)
 
-The measured waveform on hardware is also a pulsating demodulated waveform rather than a simple sine or a random chopped signal. That confirms that the transistor switching and the op-amp sign reversal are working together as designed.
+实测结果表明，电路输出已不再是简单正弦，而是具有脉动平均值特征的检波波形。相比仿真，实际输出会受到开关过渡、布线寄生和器件非理想因素影响，但只要能够形成稳定脉动输出，就说明同步检波机制已经建立。
 
-Because the circuit is built on a practical prototype board, waveform edges and pulse uniformity are less ideal than in simulation. That does not change the engineering conclusion: the stage is performing polarity-sensitive synchronous demodulation and providing the correct type of signal to the low-pass filter.
+对本级而言，调试关注点主要是：
 
-## Comparison And Engineering Conclusion
+- 方波参考是否与输入交流保持同步
+- 开关翻转时输出是否按预期变号
+- 检波后波形是否具备可低通提取的平均分量
 
-This module is successful when the following conditions hold:
-
-- the reference path controls sign reversal synchronously with the carrier
-- the output becomes a polarity-sensitive pulsating waveform
-- after low-pass filtering, the retained component follows $V_{\mathrm{LPF}} = \dfrac{2A(x)}{\pi}\cos \varphi$
-
-Under that criterion, the circuit design is sound. The equal-resistor switching structure keeps the gain magnitude under control, while the phase relation between $v_i(t)$ and $v_r(t)$ determines the sign and magnitude of the final DC output.
+从当前结果看，本级已经完成了交流相位信息向平均值极性信息的转换。

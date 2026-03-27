@@ -1,172 +1,157 @@
 ﻿# 03 Three-Op-Amp High-CMRR Amplifier
 
-## Design Task
+## 2.3.1 电路设计
 
-This stage is the first active signal-conditioning block after the bridge. Its task is not simply to make the signal larger. It must amplify the weak differential bridge output while preventing long-wire common-mode interference from being converted into false useful signal.
+三运放高共模抑制比放大电路位于交流全桥之后，是整条模拟链路的第一级有源放大电路。它的任务不是单纯把信号放大，而是在长线传输和弱差动输入条件下，尽量只放大有效差模分量，同时压制共模干扰。
 
-So the design target of this module is:
+本级采用三运放仪用放大器结构，而不是普通单端放大或简单差动放大。原因很明确：桥路输出只有毫伏级，而实际布线和外部环境会引入明显共模干扰。如果前级不能先把差模分量干净地提起来，后续相敏检波的输入质量就无法保证。
 
-- keep the bridge output differential
-- provide the first controlled gain stage
-- suppress common-mode pickup before synchronous demodulation
-
-## Schematic
+电路图如下：
 
 ![Three-op-amp amplifier schematic](../../images/module_figures/three_op_amp_amplifier_schematic.png)
 
-## Design Logic
+### 工作原理
 
-### 1. Why a three-op-amp topology is used
+该电路可分为两级理解。
 
-The report states that the sensor signal has to be transmitted over long wires to the signal-processing unit. Under that condition, common-mode interference is unavoidable, while the useful sensor signal is only from a few millivolts to several tens of millivolts. A single-ended amplifier would therefore amplify interference together with the useful signal.
+第一部分由 `U1A`、`U2A` 构成双输入前级。两路输入信号分别进入高输入阻抗运放，通过共享电阻 `R7` 建立差模增益。这一级的作用是先把桥路输出中的差模分量提起来，同时尽量不破坏输入平衡。
 
-The three-op-amp instrumentation-amplifier topology solves this problem in two steps:
+第二部分由 `U3A` 与 `R9`、`R10`、`R11`、`R14` 构成差动减法器。它利用对称电阻比实现两路信号相减，从而保留差模分量并抑制共模分量。
 
-- the first two op amps provide high-input-impedance differential pre-amplification
-- the third op amp performs subtraction so that the common-mode part is largely rejected and the differential part is preserved
+电路中还引入了 `R12`、`R13` 和可调电阻 `R15` 组成的共模补偿支路。其作用不是提高主增益，而是在实际元件不完全对称时补偿共模泄漏，以提高实际共模抑制比。
 
-That is why this stage sits immediately after the bridge and before the square-wave conversion and PSD chain.
+### 主要器件作用
 
-### 2. How this particular circuit is arranged
+- `U1A`、`U2A`：输入级差模预放大
+- `R6`、`R7`、`R8`：决定前级差模增益
+- `U3A`：输出级差动放大与共模抑制核心
+- `R9`、`R10`、`R11`、`R14`：构成对称减法网络，决定后级差模增益
+- `R12`、`R13`、`R15`：构成共模补偿支路，用于提高实际共模抑制比
 
-The circuit can be read as two cascaded functions.
+从作用上看，前级负责“把弱差模信号提起来”，后级负责“把共模量压下去”。
 
-#### Input gain stage
+## 2.3.2 参数计算
 
-`U1A` and `U2A` form the differential pre-amplifier. Their feedback arms use:
+### 放大倍数设计目标
 
-- `R6 = 25 kΩ`
-- `R8 = 25 kΩ`
-- `R7 = 50 kΩ` potentiometer
-
-This is the standard adjustable-gain front end of a three-op-amp instrumentation amplifier. The shared resistor `R7` determines the differential gain of the first stage.
-
-#### Output subtraction stage
-
-`U3A` and the surrounding resistor network perform the differential subtraction. The main matched network is:
-
-- `R9 = 40 kΩ`
-- `R10 = 40 kΩ`
-- `R14 = 40 kΩ`
-- `R11 = 40 kΩ`
-
-With equal ratios on the two sides, the subtraction stage gives nominal unity differential gain while maintaining high common-mode rejection.
-
-The branch formed by `R12`, `R13`, and the trimming resistor `R15` is the common-mode compensation network. Its purpose is not to create the main gain, but to correct residual mismatch so that practical CMRR remains high after component tolerance and wiring asymmetry are included.
-
-## Parameter Calculation
-
-### Overall Gain Requirement
-
-The report gives the system-level amplitude target:
+原说明书给出的系统幅值目标为：
 
 `40 mV -> 4 V`
 
-So the full chain must eventually provide about `100x` voltage gain. This amplifier stage does not need to complete that entire gain alone. Its role is to perform the **first clean lift** of the weak differential signal while keeping enough headroom for later synchronous demodulation and DC amplification.
+因此整条链路总放大倍数约为：
 
-### First-Stage Differential Gain
+`G_total ≈ 100`
 
-For the symmetric three-op-amp input stage,
-
-`A_d1 = 1 + 2R / R_g`
-
-where:
-
-- `R = R6 = R8 = 25 kΩ`
-- `R_g` is the effective resistance of the adjustable resistor `R7`
-
-So,
-
-`A_d1 = 1 + 50 kΩ / R_g`
-
-If this stage is designed for a nominal `10x` first amplification, then
-
-`10 = 1 + 50 kΩ / R_g`
-
-which gives
-
-`R_g ≈ 5.56 kΩ`
-
-This result explains the design choice of using a `50 kΩ` potentiometer: the gain can be trimmed around the required operating point rather than being frozen by a single fixed resistor.
-
-### Output-Stage Differential Gain
-
-The second stage is built with equal resistor ratios:
-
-`R10 / R9 = 40 kΩ / 40 kΩ = 1`
-
-`R11 / R14 = 40 kΩ / 40 kΩ = 1`
-
-So the nominal differential gain of the subtraction stage is approximately:
-
-`A_d2 ≈ 1`
-
-Therefore the overall closed-loop gain is mainly set by the first stage:
-
-`K ≈ A_d1 * A_d2 ≈ A_d1`
-
-Under the nominal design condition,
+本级不承担全部增益，而是负责完成第一级稳定差模放大。报告给出的设计结论是本级闭环增益取：
 
 `K ≈ 10`
 
-This is consistent with the report statement that the selected resistor values make the closed-loop gain `K = 10`.
+这样可以先把毫伏级桥路输出提升到后级同步检波更容易处理的量级，同时保留后续低通和直流放大的调整余量。
 
-### Why Common-Mode Compensation Is Added
+### 前级差模增益
 
-A three-op-amp topology only achieves high CMRR when the resistor ratios on both sides are closely matched. In real hardware, resistor tolerance, lead impedance, and layout asymmetry create a small conversion path from common-mode voltage to differential output.
+对三运放输入级，有：
 
-That is why this design adds the trim branch using:
+`A_d1 = 1 + 2R / R_g`
 
-- `R12 = 20 kΩ`
-- `R13 = 20 kΩ`
-- `R15 = 10 kΩ` adjustable resistor
+其中：
 
-The engineering purpose of this branch is to inject a small correction term so that the output common-mode gain can be nulled as closely as possible in the real circuit. In other words, `R15` is used to tune **CMRR in practice**, not just gain on paper.
+- `R = R6 = R8 = 25 kΩ`
+- `R_g` 为 `R7` 的等效阻值
 
-## Key Device Choice
+因此：
 
-The report selects `LM358`. The selection logic is straightforward:
+`A_d1 = 1 + 50 kΩ / R_g`
 
-- it provides dual op amps, which suits the multi-stage instrumentation topology
-- it is widely available and easy to power in practical lab conditions
-- its offset and common-mode characteristics are adequate for the first-stage weak-signal amplification task in this design
+若设计目标取前级差模增益约 `10`，则有：
 
-## Design Notes
+`10 = 1 + 50 kΩ / R_g`
 
-- Gain should be added in stages. If the entire `100x` amplification is forced into one front-end stage, offset, noise, and residual common-mode leakage will become harder to control.
-- High CMRR depends on resistor-ratio symmetry, not only on the topology name.
-- The trim resistor in the compensation branch is part of the design logic, because practical CMRR always needs calibration.
-- This stage should be evaluated by waveform linearity, gain, and resistance to common-mode disturbance together.
+解得：
 
-## Simulation Result
+`R_g ≈ 5.56 kΩ`
+
+这也是采用 `50 kΩ` 可调电阻的原因：不是为了任意调大增益，而是为了把工作点调到目标差模增益附近。
+
+### 后级差模增益
+
+输出级采用对称电阻比：
+
+`R9 = R10 = R11 = R14 = 40 kΩ`
+
+因此输出级差模增益为：
+
+`A_d2 = R10 / R9 = R11 / R14 = 1`
+
+所以本级总差模增益近似为：
+
+`A_d = A_d1 · A_d2 ≈ 10 × 1 = 10`
+
+这与原说明书给出的 `K = 10` 一致。
+
+### 共模增益与共模抑制比
+
+共模抑制能力不能只靠“用了三运放结构”来保证，必须写成参数关系。
+
+共模抑制比定义为：
+
+`CMRR = 20 lg(A_d / A_cm)`
+
+其中：
+
+- `A_d` 为差模增益
+- `A_cm` 为共模增益
+
+对理想对称输出级，当电阻比严格满足：
+
+`R10 / R9 = R11 / R14`
+
+时，共模输入在减法器中被完全抵消，因此理论上：
+
+`A_cm = 0`
+
+此时 `CMRR` 理论上趋于无穷大。
+
+但在实际电路中，电阻误差、连线不对称和器件偏差都会使 `A_cm` 不再为零，因此只能通过两种手段提高实际 `CMRR`：
+
+- 尽量保证减法网络电阻比对称
+- 调节 `R15` 补偿共模泄漏
+
+所以 `R15` 的工程意义不是改变主增益，而是尽可能减小 `A_cm`，从而增大 `CMRR`。
+
+## 2.3.3 器件选型
+
+本级核心器件为：
+
+- `LM358`
+- 对称电阻网络
+- 共模补偿可调电阻 `R15`
+
+选用 `LM358` 的原因是该器件易于实现双运放输入级，供电和实际搭建都较方便，能够满足本设计中前级弱信号差模放大的要求。
+
+## 2.3.4 仿真结果
 
 ![Three-op-amp amplifier simulation](../../images/simulation_waveforms/three_op_amp_amplifier_output_simulation.png)
 
-The simulation output remains a clean sinusoidal waveform at the carrier frequency, which means the amplifier is operating in the linear region rather than clipping or rectifying the signal. From the design perspective, the simulation verifies that:
+从仿真结果可以看出，输出仍保持载波频率下的正弦波形，说明本级工作在线性区，没有出现明显削顶和失真。
 
-- the weak bridge signal can be lifted without changing its carrier nature
-- the amplifier bandwidth is sufficient for the `5 kHz` excitation signal
-- the gain stage is suitable as a front end for the following square-wave conversion and synchronous detection stages
+这一结果验证了三点：
 
-## Practical Result
+- 差模信号已经被有效放大
+- 本级带宽能够覆盖 `5 kHz` 工作频率
+- 放大后的信号适合送入后级方波参考和相敏检波链路
+
+## 2.3.5 调试与实测结果
 
 ![Three-op-amp measured waveform](../../images/measured_waveforms/three_op_amp_amplifier_output_measured_1.png)
 
 ![Three-op-amp hardware build](../../images/measured_waveforms/three_op_amp_amplifier_output_measured_2.png)
 
-The measured result shows that the practical circuit still outputs a sinusoidal amplified signal, which means the stage is functionally correct. Compared with simulation, the hardware waveform shows more non-ideal behavior, which is reasonable for a hand-wired analog prototype with multiple op amps and long signal paths.
+实测结果表明，本级在实际电路板上仍能够输出放大后的交流波形，说明差模放大功能已经建立。相比仿真，实际波形会受到布线、器件离散性和外部耦合的影响，因此更能体现共模补偿支路存在的必要性。
 
-The hardware photo is also meaningful here: it explains why CMRR trimming is necessary. In a dense prototype-board implementation, resistor mismatch, wiring asymmetry, and coupling between nearby traces all reduce the ideal CMRR predicted by the schematic.
+对本级而言，调试重点不是只看“有没有输出”，而是看以下两点：
 
-## Comparison And Engineering Conclusion
+- 放大倍数是否落在设计范围内
+- 共模干扰是否被压到后级可接受水平
 
-This module meets its engineering role when the following three conditions are satisfied:
-
-- the bridge output is amplified by a controlled factor of about `10x`
-- the waveform remains sinusoidal and does not saturate before demodulation
-- common-mode pickup is suppressed strongly enough that the next stages still respond mainly to the useful differential signal
-
-Under that criterion, the design is reasonable. The first stage provides the required front-end gain, the second stage preserves subtraction symmetry, and the trim branch gives a practical way to recover high CMRR in real hardware.
-
-So the key contribution of this module is not merely gain. It is the combination of **weak-signal amplification + common-mode rejection + practical trim capability**, which makes the rest of the AC signal-conditioning chain possible.
-
+从当前结果看，本级已经完成了前级差模放大任务，并为后续同步检波提供了可用输入。
