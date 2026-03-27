@@ -6,11 +6,9 @@ This module converts the sine-wave reference into a synchronized square-wave con
 
 ## Schematic
 
-To be inserted: square-wave converter / zero-crossing comparator schematic.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/square_wave_converter_schematic.png`
+![Square-wave converter schematic](../../images/module_figures/square_wave_converter_schematic.png)
 
 ## Working Principle
 
@@ -45,11 +43,9 @@ This module is part of the reference path. Errors here do not just distort a loc
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation waveform:
 
-- reference sine input waveform
-- square-wave output waveform
-- timing comparison between them
+![Square-wave converter simulation](../../images/simulation_waveforms/square_wave_converter_output_simulation.png)
 
 Expected simulation conclusion:
 
@@ -58,11 +54,14 @@ Expected simulation conclusion:
 
 ## Practical Result
 
-To be inserted:
+Extracted practical waveform:
 
-- measured sine input and square-wave output
-- observed jitter or chatter near zero crossing if any
+![Square-wave converter measured](../../images/measured_waveforms/square_wave_converter_output_measured.jpeg)
+
+Still to be supplemented later:
+
 - practical output level note
+- jitter or chatter observation
 
 ## Comparison And Conclusion
 

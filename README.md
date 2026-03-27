@@ -58,6 +58,16 @@ and after low-pass filtering, the retained component is proportional to:
 
 This is the key reason the chain can distinguish in-phase, anti-phase, and quadrature cases.
 
+
+## Visual Overview
+
+Overall design flow extracted from the project report:
+
+![Overall design flow](./images/system_design_flow.png)
+
+Overall circuit simulation figure extracted from the project report:
+
+![Overall circuit simulation](./images/overall_circuit_simulation.png)
 ## Repository Goals
 
 This project is being structured as a sustainable technical archive with four parallel lines of work:
@@ -137,3 +147,4 @@ When new materials are added, expand the archive in this order:
 2. Add node names, screenshots, and measured values to the relevant document.
 3. Link each waveform or formula back to the exact module and system function it supports.
 4. Record assumptions, component values, and unresolved issues explicitly so the repository remains reusable.
+

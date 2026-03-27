@@ -6,11 +6,9 @@ This module amplifies the weak differential bridge output while suppressing comm
 
 ## Schematic
 
-To be inserted: three-op-amp high-CMRR amplifier schematic.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/three_op_amp_amplifier_schematic.png`
+![Three-op-amp amplifier schematic](../../images/module_figures/three_op_amp_amplifier_schematic.png)
 
 ## Working Principle
 
@@ -52,11 +50,14 @@ The most important practical issue is resistor matching. High CMRR is not obtain
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation waveform:
 
-- output waveform for a known weak AC differential input
-- comparison between input and output amplitudes
-- common-mode rejection demonstration if available
+![Three-op-amp amplifier simulation](../../images/simulation_waveforms/three_op_amp_amplifier_output_simulation.png)
+
+Still to be supplemented later:
+
+- input/output amplitude table
+- dedicated CMRR verification note
 
 Expected simulation conclusion:
 
@@ -65,9 +66,14 @@ Expected simulation conclusion:
 
 ## Practical Result
 
-To be inserted:
+Extracted practical figures:
 
-- measured output waveform under real bridge drive
+![Three-op-amp measured 1](../../images/measured_waveforms/three_op_amp_amplifier_output_measured_1.png)
+
+![Three-op-amp measured 2](../../images/measured_waveforms/three_op_amp_amplifier_output_measured_2.png)
+
+Still to be supplemented later:
+
 - observed sensitivity to wire pickup or external interference
 - tuning record if gain or compensation is adjustable
 
@@ -84,3 +90,5 @@ The final comparison should answer:
 - exact resistor network values
 - actual gain expression from the schematic
 - simulation and measurement screenshots
+
+

@@ -6,11 +6,9 @@ This module is the core of the whole signal-conditioning system. It converts the
 
 ## Schematic
 
-To be inserted: switch-mode phase-sensitive detector schematic.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/phase_sensitive_demodulator_schematic.png`
+![PSD schematic](../../images/module_figures/phase_sensitive_demodulator_schematic.png)
 
 ## Working Principle
 
@@ -65,12 +63,11 @@ Any imperfection here directly affects the final DC polarity and scale.
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation figures:
 
-- input sine waveform
-- reference square waveform
-- demodulated pulsating waveform
-- output behavior under phase reversal
+![PSD reference and modulated input](../../images/simulation_waveforms/psd_reference_and_modulated_signal_simulation.png)
+
+![PSD output simulation](../../images/simulation_waveforms/psd_output_simulation.png)
 
 Expected simulation conclusion:
 
@@ -79,11 +76,14 @@ Expected simulation conclusion:
 
 ## Practical Result
 
-To be inserted:
+Extracted practical waveform:
 
-- measured detector waveform before the low-pass filter
-- practical observation of switching ripple or spikes
-- measured effect of changing the reference phase if tested
+![PSD measured](../../images/measured_waveforms/phase_sensitive_demodulator_output_measured.png)
+
+Still to be supplemented later:
+
+- switching ripple note
+- effect of changing the reference phase if tested
 
 ## Comparison And Conclusion
 

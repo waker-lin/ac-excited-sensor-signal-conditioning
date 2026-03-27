@@ -6,11 +6,9 @@ This module converts the physical change of the sensor into a weak AC differenti
 
 ## Schematic
 
-To be inserted: AC full-bridge schematic with balance and capacitive compensation.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/ac_full_bridge_schematic.png`
+![AC full bridge schematic](../../images/module_figures/ac_full_bridge_schematic.png)
 
 ## Working Principle
 
@@ -51,11 +49,14 @@ This stage is extremely sensitive to imperfect balance. If the bridge zero is no
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation waveform:
 
-- bridge output waveform at balance
-- bridge output waveform under simulated load
-- effect of resistive and capacitive compensation
+![AC full bridge simulation](../../images/simulation_waveforms/ac_full_bridge_output_simulation.png)
+
+Still to be supplemented later:
+
+- separate balance-state screenshot
+- quantified compensation comparison
 
 Expected simulation conclusion:
 
@@ -64,11 +65,15 @@ Expected simulation conclusion:
 
 ## Practical Result
 
-To be inserted:
+Extracted practical waveform:
 
-- measured bridge output at no-load condition
-- measured bridge output under representative loading
-- practical adjustment method for the balancing network
+![AC full bridge measured](../../images/measured_waveforms/ac_full_bridge_output_measured.png)
+
+Still to be supplemented later:
+
+- measured no-load residual value
+- representative loaded-condition value
+- practical adjustment record for the balancing network
 
 ## Comparison And Conclusion
 

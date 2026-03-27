@@ -9,6 +9,15 @@ The final form of this document should answer two questions:
 1. Does each module work according to its design target?
 2. Does the full signal chain produce the expected final output?
 
+## Extracted Evidence
+
+A first batch of report evidence has already been extracted into the repository:
+
+- schematics: `images/module_figures/`
+- simulation waveforms: `images/simulation_waveforms/`
+- measured waveforms: `images/measured_waveforms/`
+- extraction traceability: `calculations/report_extraction_index.md`
+
 ## 1. Recommended Evidence Structure
 
 Each module should eventually be documented in the same structure:

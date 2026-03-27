@@ -6,11 +6,9 @@ This module removes the carrier-related ripple from the phase-sensitive detector
 
 ## Schematic
 
-To be inserted: second-order MFB low-pass filter schematic.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/low_pass_filter_schematic.png`
+![Low-pass filter schematic](../../images/module_figures/low_pass_filter_schematic.png)
 
 ## Working Principle
 
@@ -58,11 +56,9 @@ If the cutoff is too high, ripple remains visible. If it is too low, the output 
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation waveform:
 
-- detector output before filtering
-- output after filtering
-- comparison of ripple reduction
+![Low-pass filter simulation](../../images/simulation_waveforms/low_pass_filter_before_after_simulation.png)
 
 Expected simulation conclusion:
 
@@ -71,11 +67,16 @@ Expected simulation conclusion:
 
 ## Practical Result
 
-To be inserted:
+Extracted practical figures:
 
-- measured waveform before and after filtering
-- observed residual ripple
-- settling behavior
+![Low-pass measured 1](../../images/measured_waveforms/low_pass_filter_output_measured_1.png)
+
+![Low-pass measured 2](../../images/measured_waveforms/low_pass_filter_output_measured_2.png)
+
+Still to be supplemented later:
+
+- observed residual ripple value
+- settling behavior note
 
 Known reference from the report:
 

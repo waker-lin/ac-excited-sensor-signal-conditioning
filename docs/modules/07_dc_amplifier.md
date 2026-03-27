@@ -6,11 +6,9 @@ This module scales the filtered low-level DC signal to the final usable output r
 
 ## Schematic
 
-To be inserted: final DC amplifier schematic.
+Extracted from the report:
 
-Suggested asset path:
-
-- `images/module_figures/dc_amplifier_schematic.png`
+![DC amplifier schematic](../../images/module_figures/dc_amplifier_schematic.png)
 
 ## Working Principle
 
@@ -50,11 +48,9 @@ The practical risk of this stage is that any residual ripple left by the low-pas
 
 ## Simulation Result
 
-To be inserted:
+Extracted simulation waveform:
 
-- low-pass output waveform
-- DC amplifier output waveform
-- gain verification result
+![DC amplifier simulation](../../images/simulation_waveforms/dc_amplifier_input_output_simulation.png)
 
 Expected simulation conclusion:
 
