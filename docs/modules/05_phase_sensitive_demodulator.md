@@ -1,100 +1,194 @@
 ﻿# 05 Phase-Sensitive Demodulator
 
-## Role In The Full Chain
+## Design Task
 
-This module is the core of the whole signal-conditioning system. It converts the amplified AC sensor signal into a signed average-valued waveform that can later be filtered into DC.
+This module is the core of the AC signal-conditioning chain. Its job is to convert the amplified AC carrier signal into a polarity-sensitive pulsating waveform whose average value is proportional to the in-phase component of the sensor signal.
+
+In engineering terms, this stage must do two things at once:
+
+- preserve amplitude information
+- preserve direction information through phase discrimination
+
+That is why this circuit uses switch-type synchronous demodulation rather than ordinary rectification.
 
 ## Schematic
 
-Extracted from the report:
-
 ![PSD schematic](../../images/module_figures/phase_sensitive_demodulator_schematic.png)
 
-## Working Principle
+## Design Logic
 
-The current implementation uses a switch-mode full-wave phase-sensitive detector rather than a simple envelope detector. The square-wave reference controls a switching action so that the amplified sensor signal is either passed directly or polarity-inverted depending on the reference state.
+### 1. Two operating states of the circuit
 
-This produces a waveform whose average value depends on the phase relationship between the signal and the reference.
+Let the amplified sensor signal applied at `IN6` be denoted by $v_i(t)$, and let the square-wave reference applied at `IN7` be denoted by $v_r(t)$.
 
-That is why this module can preserve direction information:
+The circuit has two operating states controlled by transistor `Q1`.
 
-- in phase -> positive average
-- anti-phase -> negative average
-- quadrature -> average near zero
+#### State A: transistor on
 
-## Design Parameters And Calculation
+When the reference drives `Q1` into conduction, the non-inverting input of the op amp is pulled to approximately `0 V`. At that moment the circuit becomes an inverting amplifier. Since
 
-### Core Mathematical Relation
+$$
+R_{20} = R_{22} = 1\,\text{k}\Omega
+$$
 
-If the input signal is written as:
+the closed-loop gain is
 
-`v_s(t) = A(x)cos(omega t + phi)`
+$$
+A_{\mathrm{inv}} = -\frac{R_{22}}{R_{20}} = -1
+$$
 
-and the synchronous reference is:
+so the output is
 
-`v_r(t) = cos(omega t)`
+$$
+v_o(t) = -v_i(t)
+$$
 
-then after ideal multiplication and low-pass extraction:
+#### State B: transistor off
 
-`V_out ∝ A(x)cos(phi)`
+When `Q1` is cut off, the non-inverting input follows the signal through `R21`. Under the virtual-short condition of the op amp, the circuit becomes a unity-gain follower, so
 
-This is the central theoretical basis of the module.
+$$
+v_o(t) = v_i(t)
+$$
 
-### Engineering Meaning
+Therefore the demodulator does not change the magnitude scale of the signal. It only changes the sign according to the state of the reference switch.
 
-This stage does not merely detect amplitude. It extracts the component of the signal that is phase-aligned with the reference.
+### 2. Equivalent switching description
 
-## Key Devices
+The two operating states above can be written compactly with a normalized switching function $s(t)$:
 
-The report mentions this stage with:
+$$
+s(t) \in \{+1,-1\}
+$$
 
-- `LM741CH`
-- `2N3392`
+and
+
+$$
+v_o(t) = v_i(t)\,s(t)
+$$
+
+With the polarity convention used in this project, the switching function can be written as
+
+$$
+s(t) = \operatorname{sgn}[\cos(\omega t)]
+$$
+
+which means the circuit multiplies the input signal by a same-frequency square-wave reference.
+
+## Parameter Calculation
+
+### Input signal model
+
+Write the amplified sensor signal as
+
+$$
+v_i(t) = A(x)\cos(\omega t + \varphi)
+$$
+
+where:
+
+- $A(x)$ is the amplitude determined by the measured quantity $x$
+- $\omega$ is the excitation angular frequency
+- $\varphi$ is the phase difference between the sensor signal and the reference path
+
+Then the switch-type demodulator output is
+
+$$
+v_o(t) = A(x)\cos(\omega t + \varphi)\,\operatorname{sgn}[\cos(\omega t)]
+$$
+
+### Low-pass output of the switch-type demodulator
+
+The square-wave switching function has the Fourier series
+
+$$
+\operatorname{sgn}[\cos(\omega t)] = \frac{4}{\pi}\left(\cos \omega t + \frac{1}{3}\cos 3\omega t + \frac{1}{5}\cos 5\omega t + \cdots \right)
+$$
+
+Multiplying $v_i(t)$ by the fundamental term of the switching function gives
+
+$$
+v_o(t) \approx \frac{4A(x)}{\pi}\cos(\omega t + \varphi)\cos(\omega t) + \text{higher-frequency terms}
+$$
+
+Using
+
+$$
+\cos \alpha \cos \beta = \frac{1}{2}\left[\cos(\alpha-\beta) + \cos(\alpha+\beta)\right]
+$$
+
+we obtain
+
+$$
+v_o(t) \approx \frac{2A(x)}{\pi}\cos \varphi + \frac{2A(x)}{\pi}\cos(2\omega t + \varphi) + \text{higher-frequency terms}
+$$
+
+After the low-pass filter removes the AC terms, the retained DC component is
+
+$$
+V_{\mathrm{LPF}} = \frac{2A(x)}{\pi}\cos \varphi
+$$
+
+This expression is the key design result for the actual switch-type circuit. Compared with ideal sinusoidal multiplication, the proportional coefficient is different, but the phase law is unchanged: the output depends on the in-phase component of the input signal.
+
+### Physical meaning of the phase term
+
+The demodulator therefore distinguishes three important cases:
+
+$$
+\varphi = 0 \quad \Rightarrow \quad V_{\mathrm{LPF}} = \frac{2A(x)}{\pi} > 0
+$$
+
+$$
+\varphi = \pi \quad \Rightarrow \quad V_{\mathrm{LPF}} = -\frac{2A(x)}{\pi} < 0
+$$
+
+$$
+\varphi = \frac{\pi}{2} \quad \Rightarrow \quad V_{\mathrm{LPF}} = 0
+$$
+
+This is exactly the reason the system can distinguish positive displacement, negative displacement, and quadrature interference.
+
+## Key Device Choice
+
+The report uses:
+
+- `LM741CH` as the op amp
+- `2N3392` as the transistor switch
+
+The design idea is clear: the op amp provides the linear closed-loop inversion/following behavior, while the transistor performs the state switching under control of the reference square wave.
 
 ## Design Notes
 
-This module is highly sensitive to:
-
-- reference phase accuracy
-- switching feedthrough
-- residual offset from the previous stage
-
-Any imperfection here directly affects the final DC polarity and scale.
+- The reference frequency must match the carrier frequency; otherwise the average output collapses.
+- The reference phase must be controlled; otherwise the demodulated amplitude is reduced by the factor $\cos \varphi$.
+- Because $R_{20} = R_{22}$, the switched stage preserves input amplitude while changing only the sign. This is a deliberate design choice.
+- The output of this stage is not yet the final DC result. It is a pulsating waveform that must still be filtered.
 
 ## Simulation Result
-
-Extracted simulation figures:
 
 ![PSD reference and modulated input](../../images/simulation_waveforms/psd_reference_and_modulated_signal_simulation.png)
 
 ![PSD output simulation](../../images/simulation_waveforms/psd_output_simulation.png)
 
-Expected simulation conclusion:
+The first simulation figure shows that the amplified carrier signal and the square-wave reference have the same frequency and a defined phase relationship. The second figure shows the expected demodulator output: a full-wave pulsating waveform whose average value is positive for the selected phase convention.
 
-- detector output average changes sign with phase reversal
-- waveform shape matches the expected switch-mode full-wave behavior
+This is exactly the waveform that should appear before low-pass filtering. It is not a failure to remove ripple; it is the intended output of synchronous switching demodulation.
 
 ## Practical Result
 
-Extracted practical waveform:
-
 ![PSD measured](../../images/measured_waveforms/phase_sensitive_demodulator_output_measured.png)
 
-Still to be supplemented later:
+The measured waveform on hardware is also a pulsating demodulated waveform rather than a simple sine or a random chopped signal. That confirms that the transistor switching and the op-amp sign reversal are working together as designed.
 
-- switching ripple note
-- effect of changing the reference phase if tested
+Because the circuit is built on a practical prototype board, waveform edges and pulse uniformity are less ideal than in simulation. That does not change the engineering conclusion: the stage is performing polarity-sensitive synchronous demodulation and providing the correct type of signal to the low-pass filter.
 
-## Comparison And Conclusion
+## Comparison And Engineering Conclusion
 
-The final comparison should answer:
+This module is successful when the following conditions hold:
 
-- Does the stage preserve sign information correctly?
-- Is the output polarity consistent with theory?
-- Are switching artifacts small enough for the low-pass stage to handle?
+- the reference path controls sign reversal synchronously with the carrier
+- the output becomes a polarity-sensitive pulsating waveform
+- after low-pass filtering, the retained component follows $V_{\mathrm{LPF}} = \dfrac{2A(x)}{\pi}\cos \varphi$
 
-## To Add Next
-
-- exact switching network values
-- pre-LPF waveform screenshot
-- practical waveform screenshot
+Under that criterion, the circuit design is sound. The equal-resistor switching structure keeps the gain magnitude under control, while the phase relation between $v_i(t)$ and $v_r(t)$ determines the sign and magnitude of the final DC output.
