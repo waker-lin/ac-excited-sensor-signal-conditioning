@@ -2,13 +2,25 @@
 
 ## Purpose
 
-This document is the module index of the repository.
+This document is now the index of the unit-circuit section of the repository.
 
-The project is not intended to keep all module details in one long file. Instead, each module is documented as an individual circuit record so that schematic, calculation, simulation, measurement, and conclusion can stay together.
+The project is no longer described mainly as a generic signal-conditioning topic. It is now organized primarily around individual circuit units, and only then around the overall chain explanation.
 
-## Documentation Rule
+## Main Structure
 
-Each module record follows the same engineering structure:
+The repository is divided into two layers:
+
+### Part I: Unit Circuits
+
+This is the main body of the project. Each circuit unit is documented independently so that schematic, principle, calculation, simulation, measurement, and conclusion remain in one place.
+
+### Part II: Overall Explanation
+
+This includes the block diagram, signal flow, waveform evolution, and mathematical analysis of the full system.
+
+## Unit-Circuit Documentation Rule
+
+Each unit record follows the same engineering structure:
 
 - role in the full chain
 - schematic
@@ -18,49 +30,56 @@ Each module record follows the same engineering structure:
 - practical result
 - comparison and conclusion
 
-This rule keeps the repository aligned with the core objective:
+This keeps every circuit file aligned with the project objective:
 
 `principle -> calculation -> simulation -> practice -> summary`
 
-## Module List
+## Part I: Core Unit Circuits
 
-- [01_sine_wave_generator.md](./modules/01_sine_wave_generator.md): RC bridge sine-wave generator
+These six files are the main unit-circuit records of the repository:
+
 - [02_ac_full_bridge.md](./modules/02_ac_full_bridge.md): AC full bridge, balance, and compensation
 - [03_three_op_amp_amplifier.md](./modules/03_three_op_amp_amplifier.md): three-op-amp high-CMRR amplifier
 - [04_square_wave_converter.md](./modules/04_square_wave_converter.md): zero-crossing square-wave converter
 - [05_phase_sensitive_demodulator.md](./modules/05_phase_sensitive_demodulator.md): switch-mode phase-sensitive detector
 - [06_low_pass_filter.md](./modules/06_low_pass_filter.md): second-order MFB low-pass filter
 - [07_dc_amplifier.md](./modules/07_dc_amplifier.md): final DC amplification stage
-- [08_display_stage.md](./modules/08_display_stage.md): display/output stage placeholder
 
-## How To Use These Module Files
+## Supporting Circuit Files
 
-Read them in two ways:
+These files are still useful, but they are now treated as supporting records around the six main unit circuits:
 
-### 1. By Signal Flow
+- [01_sine_wave_generator.md](./modules/01_sine_wave_generator.md): excitation source and reference basis
+- [08_display_stage.md](./modules/08_display_stage.md): output/display stage placeholder
 
-If you want to understand the whole circuit from input to output, read the modules in the listed order.
+## How To Read The Unit Files
 
-### 2. By Engineering Task
+Two reading modes are recommended.
 
-If you want to debug or improve one stage, open only the corresponding module file. Each file is meant to contain everything directly related to that circuit block.
+### 1. By Circuit Unit
+
+If you want to study, debug, or complete one circuit block, open only the corresponding module file.
+
+### 2. By Signal Flow
+
+If you want to understand the full analog path, read the six core circuit files in order from bridge to DC amplifier.
 
 ## Current Status
 
-The first pass of these module files already includes:
+The unit files already include:
 
-- circuit role definition
+- role definition
 - principle explanation
 - key known parameters from the report
-- calculation anchors
-- placeholders for simulation and measured evidence
+- extracted schematics for the main circuits
+- extracted simulation and measured waveforms for several units
 
-The next stage is to attach:
+The next stage is to strengthen each unit file with:
 
-- schematic screenshots
-- waveform screenshots
-- measured values
-- discrepancy explanations
+- fuller parameter derivation
+- explicit substitution steps
+- comparison between simulation and practical measurement
+- tighter conclusions for each circuit block
 
 ## Extracted Assets
 
@@ -68,4 +87,3 @@ A first batch of figures and formula objects has already been extracted from the
 See:
 
 - [../calculations/report_extraction_index.md](../calculations/report_extraction_index.md)
-

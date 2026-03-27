@@ -2,71 +2,65 @@
 
 ## Project Positioning
 
-This repository is a circuit-project archive rather than a general study notebook.
+This repository is a circuit-project archive focused on one complete signal-conditioning system.
 
-Its purpose is to document one complete signal-conditioning system from five engineering angles:
+The preferred reading structure is now divided into two parts.
 
-- principle
-- calculation process
-- simulation
-- practical implementation
-- final summary
+## Part I: Unit Circuits
 
-## Core Deliverables
+The main body of the repository is organized by circuit unit. Each major unit should be understandable on its own.
 
-The repository is expected to answer two levels of questions.
+The six core circuit units are:
 
-### A. Module Level
+1. Full bridge
+2. Three-op-amp high-CMRR amplifier
+3. Square-wave converter
+4. Phase-sensitive demodulator
+5. Low-pass filter
+6. DC amplifier
 
-For each circuit block, the repository should provide:
+For each unit, the repository should provide:
 
 - schematic
 - principle explanation
 - parameter calculation and calculation process
 - simulation waveform
 - practical result
+- short conclusion
 
-### B. System Level
+This is the primary organizational rule of the repository.
 
-For the complete chain, the repository should explain:
+## Part II: Overall System Explanation
+
+After the unit circuits are documented individually, the repository explains how they work together as one full processing chain.
+
+This second part should answer:
 
 - how the signal enters the system
 - what each stage does to the signal
-- how the waveform evolves
+- how the waveform evolves from stage to stage
 - why the final output can represent the measured quantity
 
 ## Why This Structure Matters
 
-If the repository contains only schematics, it is difficult to reuse.
+If the repository is organized only by the whole chain, then the details of each circuit become hard to track.
 
-If it contains only formulas, it is difficult to verify.
+If it is organized only by isolated circuits, then the overall logic becomes fragmented.
 
-If it contains only waveforms, it is difficult to understand.
+So the repository uses a two-layer structure:
 
-So the proper project form is:
+`Part I: unit circuits`
+
+`Part II: overall chain explanation`
+
+## Supporting Circuit Blocks
+
+The sine-wave generator and the display path are still part of the complete system, but they serve as supporting context around the six core unit circuits listed above.
+
+## Documentation Rule
+
+The working rule of the repository remains:
 
 `principle -> calculation -> simulation -> practice -> summary`
 
-This sequence is the central organizing rule of the repository.
-
-## Current Circuit Focus
-
-The present archived circuit focuses on an AC-excited signal-conditioning chain that includes:
-
-- sine-wave generation
-- AC full bridge sensing stage
-- three-op-amp high-CMRR amplification
-- square-wave reference generation
-- phase-sensitive demodulation
-- low-pass filtering
-- DC amplification
-- final display interface
-
-## Repository Use
-
-This repository should be readable in two ways:
-
-- by module: when checking one circuit block in detail
-- by signal chain: when understanding the complete processing path from input to output
-
-That dual readability is the design target of the documentation itself.
+That rule applies first to each individual circuit, and then to the overall system explanation.
